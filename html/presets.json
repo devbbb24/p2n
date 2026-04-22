@@ -1,0 +1,23 @@
+{
+    "nar": {
+      "type": "narration",
+      "color": "#888880"
+    },
+    "nar-center": {
+      "type": "system",
+      "align": "center",
+      "fontSize": 13,
+      "color": "#aaaaaa"
+    },
+    "system": {
+      "type": "narration",
+      "bold": true,
+      "color": "#c8a060",
+      "align": "center",
+      "letterSpacing": 1
+    },
+    "choice": {
+        "type": "choice",
+        "label": "선택지"
+    }
+  }

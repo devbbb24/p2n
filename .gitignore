@@ -1,3 +1,9 @@
+*.vs
+*.vcxproj.user
+*.tlog
+[Dd]ebug/
+[Rr]elease/
+
 # Prerequisites
 *.d
 

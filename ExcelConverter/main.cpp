@@ -1,0 +1,281 @@
+﻿#include <iostream>
+#include <string>
+#include <windows.h>
+#include <filesystem>
+#include <regex>
+
+#include "OpenXLSX/OpenXLSX.hpp"
+#include "nlohmann/json.hpp"
+
+using namespace std;
+using namespace nlohmann;
+
+void Log(const string& str) { cout << str << "\n"; }
+
+struct ScriptLine
+{
+	string type;
+	string speaker;
+	string text;
+	string color;
+	bool italic;
+	bool bold;
+	int size;
+	string textAlign;
+};
+
+json create_line_object(const ScriptLine& line)
+{
+	json obj;
+
+	if (line.type == "image")
+	{
+		obj["type"] = "image";
+		obj["src"] = line.text;
+	}
+	else
+	{
+		// 나레이션 판정 (speaker가 없으면 nar)
+		if (line.speaker.empty())
+		{
+			obj["preset"] = "nar";
+		}
+		else
+		{
+			obj["speaker"] = line.speaker;
+		}
+
+		obj["text"] = line.text;
+		if (!line.color.empty()) obj["color"] = line.color;
+		if (line.italic) obj["italic"] = true;
+		if (line.bold) obj["bold"] = true;
+		if (line.size > 0) obj["size"] = line.size;
+		if (!line.textAlign.empty()) obj["textAlign"] = line.textAlign;
+	}
+	return obj;
+}
+
+std::string getCellStr(OpenXLSX::XLWorksheet& sheet, int row, int col)
+{
+	auto cell = sheet.cell(row, col);
+	if (cell.value().type() == OpenXLSX::XLValueType::Empty)
+		return "";
+	return cell.value().get<std::string>();
+}
+int getCellInt(OpenXLSX::XLWorksheet& sheet, int row, int col)
+{
+	auto cell = sheet.cell(row, col);
+	if (cell.value().type() == OpenXLSX::XLValueType::Empty)
+		return 0;
+	return cell.value().get<int>();
+}
+
+
+regex red("<red>");
+regex orange("<org>");
+regex blue("<blue>");
+regex endColor("</red>|</org>|</blue>");
+
+json convert_json(OpenXLSX::XLWorksheet& sheet)
+{
+	json root;
+	root["lines"] = json::array();
+
+	int rowCount = sheet.rowCount();
+	const int COL_TYPE = 1;
+	const int COL_SPEAKER = 2;
+	const int COL_TEXT = 3;
+	const int COL_COLOR = 4;
+	const int COL_ITALIC = 5;
+	const int COL_BOLD = 6;
+	const int COL_SIZE = 7;
+	const int COL_ALIGN = 8;
+
+	auto set_text = [&](json& line, int i)
+	{
+		auto text = getCellStr(sheet, i, COL_TEXT);
+		text = std::regex_replace(text, red, string("[color=#ff2222]"));
+		text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
+		text = std::regex_replace(text, blue, string("[color=#0041C2]"));
+		text = std::regex_replace(text, endColor, string("[/color]"));
+		line["text"] = text;
+
+		if (getCellInt(sheet, i, COL_ITALIC) == 1)
+			line["italic"] = true;
+		if (getCellInt(sheet, i, COL_BOLD) == 1)
+			line["bold"] = true;
+
+		std::string color = getCellStr(sheet, i, COL_COLOR);
+		if (!color.empty())
+			line["color"] = color;
+
+		int size = getCellInt(sheet, i, COL_SIZE);
+		if (size > 0)
+			line["size"] = size;
+
+		std::string align = getCellStr(sheet, i, COL_ALIGN);
+		if (!align.empty())
+			line["textAlign"] = align;
+
+		root["lines"].push_back(line);
+	};
+
+
+	for (int i = 2; i <= rowCount; ++i)
+	{
+		std::string type = getCellStr(sheet, i, COL_TYPE);
+		if (type.empty())
+			type = "dialogue";
+
+		if (type == "choice")
+		{
+			json choiceGroup;
+			choiceGroup["preset"] = "choice";
+			choiceGroup["choices"] = json::array();
+
+			// 연속된 선택지들 처리
+			while (i <= rowCount && getCellStr(sheet, i, COL_TYPE) == "choice")
+			{
+				json choiceItem;
+				choiceItem["text"] = getCellStr(sheet, i, COL_TEXT);
+
+				// 이 선택지 바로 다음에 result가 오는지 확인
+				if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "result")
+				{
+					choiceItem["result"] = json::array();
+					i++; // result 행으로 이동
+
+					while (i <= rowCount && getCellStr(sheet, i, COL_TYPE) == "result")
+					{
+						json resLine;
+						std::string spk = getCellStr(sheet, i, COL_SPEAKER);
+
+						if (spk.empty())
+							resLine["preset"] = "nar";
+						else
+							resLine["speaker"] = spk;
+
+						resLine["text"] = getCellStr(sheet, i, COL_TEXT);
+
+						// 추가 속성들 (필요한 경우에만 JSON에 포함)
+						std::string color = getCellStr(sheet, i, COL_COLOR);
+						if (!color.empty())
+							resLine["color"] = color;
+						if (getCellInt(sheet, i, COL_ITALIC) == 1)
+							resLine["italic"] = true;
+						if (getCellInt(sheet, i, COL_BOLD) == 1)
+							resLine["bold"] = true;
+
+						choiceItem["result"].push_back(resLine);
+
+						// 다음 행이 또 result인지 확인하고 아니면 break
+						if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "result")
+							i++;
+						else
+							break;
+					}
+				}
+				choiceGroup["choices"].push_back(choiceItem);
+
+				// 다음 행이 또 choice인지 확인
+				if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "choice")
+					i++;
+				else 
+					break;
+			}
+			root["lines"].push_back(choiceGroup);
+		}
+		else if (type == "image" || type.starts_with("image"))
+		{
+			auto value = type == "image" ? getCellStr(sheet, i, COL_TEXT) : type;
+			root["lines"].push_back({
+				{"type", "image"},
+				{"src", value}
+				});
+		}
+		else if (type == "dialogue")
+		{
+			json line;
+			std::string spk = getCellStr(sheet, i, COL_SPEAKER);
+
+			if (spk.empty())
+				line["preset"] = "nar";
+			else
+				line["speaker"] = spk;
+
+			set_text(line, i);
+		}
+		else if (type == "nar-center")
+		{
+			json line;
+			line["preset"] = "nar-center";
+			set_text(line, i);
+		}
+	}
+	return root;
+}
+
+void parse(const filesystem::path& file)
+{
+	Log(file.filename().string());
+
+	OpenXLSX::XLDocument doc(file.filename().string());
+	auto wb = doc.workbook();
+	for (const auto& sheetName : wb.worksheetNames())
+	{
+		Log("\t" + sheetName + "...");
+		if ('#' == sheetName.front() || sheetName.empty())
+		{
+			Log("- Skipped.");
+			continue;
+		}
+
+		auto wks = wb.worksheet(sheetName);
+		static constexpr auto minRowCount = 2;
+		if (wks.rowCount() < minRowCount)
+			throw runtime_error("Needs at least 2 of row counts.");
+
+		auto spreadSheetName = file.filename().replace_extension("").string();
+		auto outFile = format("{}_{}.json", spreadSheetName, sheetName);
+
+		ofstream ofs(outFile);
+		ofs << convert_json(wks);
+	}
+
+	doc.close();
+}
+
+void parse_all_in_directory(const filesystem::path& path)
+{
+	for (const auto& entry : filesystem::recursive_directory_iterator(path))
+	{
+		if (is_regular_file(entry) &&
+			entry.path().extension() == ".xlsx" &&
+			*entry.path().filename().string().data() != '~')
+		{
+			parse(entry.path().filename());
+		}
+	}
+}
+
+int main(int argCount, char* args[])
+{
+	try
+	{
+		if (1 == argCount)
+		{
+			char buffer[1024]{};
+			GetCurrentDirectoryA(1024, buffer);
+			parse_all_in_directory({ buffer });
+		}
+		else
+		{
+			for (auto i = 1; i < argCount; ++i)
+				parse(args[i]);
+		}
+	}
+	catch (const exception& e)
+	{
+		Log(e.what());
+	}
+}

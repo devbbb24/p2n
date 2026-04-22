@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Path to nowhere</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f7f6f3;
+      --surface: #ffffff;
+      --surface2: #f0efe9;
+      --border: rgba(0, 0, 0, 0.1);
+      --border2: rgba(0, 0, 0, 0.18);
+      --text: #1a1a18;
+      --text2: #6b6b65;
+      --text3: #a0a09a;
+      --accent: #2c2c2a;
+      --active-bg: #ffffff;
+      --sidebar-w: 160px;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #18181a;
+        --surface: #222224;
+        --surface2: #2a2a2c;
+        --border: rgba(255, 255, 255, 0.08);
+        --border2: rgba(255, 255, 255, 0.15);
+        --text: #f0efe9;
+        --text2: #9b9b94;
+        --text3: #5a5a56;
+        --accent: #e0dfd8;
+        --active-bg: #2e2e30;
+      }
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--surface2);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem 0 1rem;
+      gap: 2px;
+    }
+
+    .sidebar-logo {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      padding: 0 1rem 1rem;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 1rem;
+      font-size: 13.5px;
+      color: var(--text2);
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.1s, color 0.1s;
+      user-select: none;
+      border-right: 2px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: var(--active-bg);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--active-bg);
+      color: var(--text);
+      font-weight: 500;
+      border-right: 2px solid var(--accent);
+    }
+
+    .nav-item svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .nav-item.active svg {
+      opacity: 1;
+    }
+
+    /* ── 메인 ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      min-width: 0;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+      letter-spacing: -0.4px;
+    }
+
+    /* ── 검색 ── */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      font-size: 13.5px;
+      font-family: inherit;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    .search-input::placeholder {
+      color: var(--text3);
+    }
+
+    /* ── 스토리 카드 ── */
+    .story-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.875rem 1rem;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+
+    .story-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-1px);
+    }
+
+    .story-card:active {
+      transform: translateY(0);
+    }
+
+    .story-card-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .story-card-meta {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--surface2);
+      color: var(--text2);
+      border: 0.5px solid var(--border);
+    }
+
+    /* ── 뷰어 ── */
+    .viewer-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .back-btn {
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--text2);
+      background: transparent;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+      white-space: nowrap;
+    }
+
+    .back-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .viewer-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    /* 챕터 전체 출력 */
+    .chapter-body {
+      width: 100%;
+      max-width: calc(40vh / 0.5625);
+      /* 이미지 max-height 기준, 16:9 비율 */
+      margin: 0 auto;
+    }
+
+    .story-line {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 0 1.25rem;
+      margin-bottom: 1rem;
+      align-items: baseline;
+    }
+
+    .story-line.type-system {
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .line-text.system {
+      color: var(--text2);
+    }
+
+    .line-text.narration {
+      color: var(--text2);
+      grid-column: 2;
+      padding-left: 0;
+    }
+
+    .story-line.type-choice {
+      display: grid;
+      grid-template-columns: 50px 1fr;
+      gap: 0 1.25rem;
+      margin-bottom: 1.75rem;
+      align-items: start;
+    }
+
+    .choice-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text3);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-align: left;
+      padding-bottom: 0.4em;
+      grid-column: 2;
+    }
+
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: stretch;
+      grid-column: 2;
+    }
+
+    .choice-item {
+      display: flex;
+      align-items: stretch;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--surface);
+    }
+
+    .choice-item.nothing {
+      cursor: default;
+      opacity: 0.7;
+    }
+
+    .choice-item.nothing .choice-body {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .choice-item.nothing .choice-arrow::before {
+      content: '-';
+      font-size: 14px;
+    }
+
+    .choice-item.nothing:hover {
+      border-color: var(--border2);
+      background: var(--surface);
+    }
+
+    .story-line.type-image {
+      display: block;
+      margin-bottom: 1.5rem;
+    }
+
+    .speaker {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text2);
+      letter-spacing: 0.3px;
+      text-align: right;
+      padding-top: 0.2em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .line-text {
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    /* 이미지 블록 */
+    .story-image {
+      display: block;
+      width: 100%;
+      max-height: 40vh;
+      object-fit: contain;
+      border-radius: var(--radius);
+      border: 0.5px solid var(--border);
+      margin: 50px auto;
+      cursor: zoom-in;
+    }
+
+    .image-caption {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* 최상단 에피소드 이동 버튼 */
+    .episode-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .episode-nav-btn {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      color: var(--text2);
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+      white-space: nowrap;
+    }
+
+    .episode-nav-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .episode-nav-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    /* 인라인 스타일 태그 */
+    .story-span {}
+
+    /* 선택지 블록 */
+    .story-line.type-choice {
+      margin-top: 1.75rem;
+      bottom: 1.75rem;
+    }
+
+    .choice-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text3);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .choice-item {
+      display: flex;
+      align-items: stretch;
+      width: 80%;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--surface);
+    }
+
+    .choice-item:hover {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+
+    .choice-item.open {
+      border-color: var(--accent);
+    }
+
+    .choice-arrow {
+      width: 36px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text3);
+      border-right: 0.5px solid var(--border);
+    }
+
+    .choice-arrow::before {
+      content: '▶';
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    .choice-item.open .choice-arrow::before {
+      transform: rotate(90deg);
+      color: var(--text2);
+    }
+
+    .choice-body {
+      flex: 1;
+      padding: 10px 12px;
+    }
+
+    .choice-title {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .choice-result {
+      display: none;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+      line-height: 1.7;
+    }
+
+    .choice-item.open .choice-result {
+      display: block;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    /* result 안의 dialog 라인 */
+    .choice-result .story-line {
+      grid-template-columns: 40px 1fr;
+      margin-bottom: 0.6rem;
+    }
+
+    .choice-result .story-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .choice-item.open .choice-result {
+      display: block;
+    }
+
+    /* 라이트박스 */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      border-radius: var(--radius);
+      object-fit: contain;
+    }
+
+    /* 챕터 끝 */
+    .chapter-end {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 0.5px solid var(--border);
+      text-align: center;
+    }
+
+    .chapter-end .end-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .chapter-end .end-sub {
+      font-size: 13px;
+      color: var(--text3);
+      margin-bottom: 1.25rem;
+    }
+
+    .end-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .end-btns button {
+      flex: 1;
+      font-family: inherit;
+      font-size: 13.5px;
+      padding: 9px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .end-btns button:hover {
+      background: var(--surface2);
+    }
+
+    /* ── 캐릭터 ── */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .char-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      transition: border-color 0.15s;
+    }
+
+    .char-card:hover {
+      border-color: var(--border2);
+    }
+
+    .char-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 auto 10px;
+    }
+
+    .char-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .char-rank,
+    .char-role {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+
+    /* ── 설정 ── */
+    .setting-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    .setting-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .setting-desc {
+      font-size: 12.5px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type=range] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--surface2);
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-size: 13px;
+      color: var(--text2);
+      min-width: 34px;
+    }
+
+    /* ── 없는 결과 ── */
+    .no-result {
+      font-size: 14px;
+      color: var(--text3);
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .top-btn {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      color: var(--text2);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      font-family: inherit;
+      z-index: 100;
+    }
+
+    .top-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .top-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    /* ── 스크롤바 ── */
+    .main::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .main::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .main::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-logo">무기미도</div>
+
+    <div class="nav-item active" id="nav-stories" onclick="showSection('stories', this)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="2" width="12" height="2" rx="1" fill="currentColor" />
+        <rect x="2" y="6.5" width="8" height="2" rx="1" fill="currentColor" />
+        <rect x="2" y="11" width="10" height="2" rx="1" fill="currentColor" />
+      </svg>
+      메인 스토리
+    </div>
+
+    <div class="nav-item" id="nav-characters" onclick="showSection('characters', this)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="5.5" r="2.8" fill="currentColor" />
+        <path d="M2.5 14.5c0-3 2.46-5.5 5.5-5.5s5.5 2.46 5.5 5.5" stroke="currentColor" stroke-width="1.4"
+          stroke-linecap="round" fill="none" />
+      </svg>
+      심문
+    </div>
+
+    <div class="nav-item" id="nav-settings" onclick="showSection('settings', this)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="2.2" fill="currentColor" />
+        <path
+          d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M11.2 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"
+          stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+      </svg>
+      설정
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- 스토리 목록 -->
+    <div id="sec-stories" class="section active">
+      <h2>스토리 목록</h2>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4" />
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        <input class="search-input" id="search-input" type="text" placeholder="제목 또는 태그로 검색..." oninput="renderList()">
+      </div>
+      <div id="story-list"></div>
+    </div>
+
+    <!-- 스토리 뷰어 -->
+    <div id="sec-viewer" class="section">
+      <div class="viewer-header">
+        <button class="back-btn" onclick="backToList()">← 목록</button>
+        <span class="viewer-title" id="viewer-title"></span>
+      </div>
+      <div id="viewer-content"></div>
+    </div>
+
+    <!-- 캐릭터 -->
+    <div id="sec-characters" class="section">
+      <h2>캐릭터</h2>
+      <div class="char-grid" id="char-grid"></div>
+    </div>
+
+    <!-- 설정 -->
+    <div id="sec-settings" class="section">
+      <h2>설정</h2>
+
+      <div class="setting-card">
+        <div class="setting-label">글꼴 크기</div>
+        <div class="slider-row">
+          <span style="font-size:12px;color:var(--text3);">작게</span>
+          <input type="range" min="13" max="22" value="15" step="1" id="font-slider"
+            oninput="updateFontSize(this.value)">
+          <span style="font-size:12px;color:var(--text3);">크게</span>
+          <span class="slider-val" id="font-val">15px</span>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <div class="setting-label">버전 정보</div>
+        <div class="setting-desc">내 스토리 리더 v1.0</div>
+        <div class="setting-desc" style="margin-top:2px;">더블클릭으로 실행되는 HTML 앱</div>
+      </div>
+    </div>
+
+    <button class="top-btn" id="top-btn" onclick="scrollToTop()">↑</button>
+
+  </main>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <script>
+    /* ── 상태 ── */
+    let chapters = [];
+    let characters = [];
+    let presets = {};
+    let currentChapter = null;
+    let fontSize = 15;
+    let currentPages = [];
+    let currentPage = 0;
+
+    /* ────────────────────────────────────────
+       JSON 로드
+    ──────────────────────────────────────── */
+
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+
+    function scrollToTop() {
+      document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.querySelector('.main').addEventListener('scroll', function () {
+      const btn = document.getElementById('top-btn');
+      if (this.scrollTop > 80) btn.classList.add('visible');
+      else btn.classList.remove('visible');
+    });
+
+    async function loadData() {
+      const listEl = document.getElementById('story-list');
+      listEl.innerHTML = '<div class="no-result">데이터 불러오는 중...</div>';
+      try {
+        const [idxRes, chRes, prRes] = await Promise.all([
+          fetch('chapters/index.json'),
+          fetch('characters.json'),
+          fetch('presets.json').catch(() => null)   // 없어도 OK
+        ]);
+
+        if (!idxRes.ok) throw new Error('chapters/index.json 을 찾을 수 없습니다.');
+        if (!chRes.ok) throw new Error('characters.json 을 찾을 수 없습니다.');
+
+        chapters = await idxRes.json();
+        characters = await chRes.json();
+        if (prRes && prRes.ok) presets = await prRes.json();
+
+        renderList();
+        renderChars();
+      } catch (err) {
+        listEl.innerHTML = `<div class="no-result" style="color:var(--text2);">
+          <div style="font-size:15px;font-weight:500;margin-bottom:6px;">파일을 불러오지 못했습니다</div>
+          <div style="font-size:12px;color:var(--text3);">${err.message}</div>
+          </div>`;
+      }
+    }
+
+    /* ────────────────────────────────────────
+       섹션 전환
+    ──────────────────────────────────────── */
+    function showSection(name, el) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('sec-' + name).classList.add('active');
+      el.classList.add('active');
+    }
+
+    /* ────────────────────────────────────────
+       스토리 목록
+    ──────────────────────────────────────── */
+    function renderList() {
+      const q = document.getElementById('search-input').value.trim().toLowerCase();
+      const filtered = chapters.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        c.tags.some(t => t.toLowerCase().includes(q))
+      );
+      const el = document.getElementById('story-list');
+      if (!filtered.length) {
+        el.innerHTML = '<div class="no-result">검색 결과가 없습니다.</div>';
+        return;
+      }
+      el.innerHTML = filtered.map(c => `
+      <div class="story-card" onclick="openChapter(${c.id})">
+        <div class="story-card-title">${c.title}</div>
+        <div class="story-card-meta">
+          ${c.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>`).join('');
+    }
+
+    /* ────────────────────────────────────────
+       스토리 열기
+    ──────────────────────────────────────── */
+    async function openChapter(id) {
+      const meta = chapters.find(c => c.id === id);
+      document.getElementById('viewer-title').textContent = meta.title;
+      document.getElementById('viewer-content').innerHTML =
+        '<div class="no-result">불러오는 중...</div>';
+
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('sec-viewer').classList.add('active');
+      document.getElementById('nav-stories').classList.add('active');
+
+      try {
+        // 1) 챕터 인덱스 파일 로드
+        const chapRes = await fetch(meta.file);
+        if (!chapRes.ok) throw new Error(`${meta.file} 을 찾을 수 없습니다.`);
+        const chapData = await chapRes.json();
+
+        if (chapData.presets) Object.assign(presets, chapData.presets);
+
+        // 2) episodes 배열의 각 화 파일을 병렬 fetch
+        const episodes = chapData.episodes || [];
+        const pageResults = await Promise.all(
+          episodes.map(ep => fetch(ep.file).then(r => {
+            if (!r.ok) throw new Error(`${ep.file} 을 찾을 수 없습니다.`);
+            return r.json();
+          }))
+        );
+
+        // 3) { title, lines } 형태로 정규화
+        currentPages = pageResults.map((data, i) => ({
+          title: data.title || episodes[i].title || `${i + 1}화`,
+          lines: data.lines || []
+        }));
+
+        currentPage = 0;
+        document.querySelector('.main').scrollTop = 0;
+        renderViewer();
+      } catch (err) {
+        document.getElementById('viewer-content').innerHTML =
+          `<div class="no-result" style="color:var(--text2);">${err.message}</div>`;
+      }
+    }
+
+    /* ────────────────────────────────────────
+       프리셋 병합
+       라인 자체 속성이 프리셋보다 우선
+    ──────────────────────────────────────── */
+    function mergePreset(line) {
+      if (!line.preset || !presets[line.preset]) return line;
+      return Object.assign({}, presets[line.preset], line);
+    }
+
+    /* ────────────────────────────────────────
+       스타일 객체 → inline style 문자열
+    ──────────────────────────────────────── */
+    function buildStyle(line) {
+      const parts = [];
+      parts.push(`font-size: ${line.fontSize || fontSize}px`);
+      if (line.italic) parts.push('font-style: italic');
+      if (line.bold) parts.push('font-weight: 700');
+      if (line.color) parts.push(`color: ${line.color}`);
+      if (line.align) parts.push(`text-align: ${line.align}`);
+      if (line.letterSpacing) parts.push(`letter-spacing: ${line.letterSpacing}px`);
+      return parts.join('; ');
+    }
+
+    /* ────────────────────────────────────────
+       인라인 태그 파서
+       지원 태그: [b]...[/b]  [i]...[/i]
+                  [color=#hex]...[/color]
+                  [size=N]...[/size]
+                  [bi]...[/bi]  (bold+italic)
+    ──────────────────────────────────────── */
+    function parseInline(text) {
+      return text
+        .replace(/\[b\](.*?)\[\/b\]/g,
+          '<span style="font-weight:700">$1</span>')
+        .replace(/\[i\](.*?)\[\/i\]/g,
+          '<span style="font-style:italic">$1</span>')
+        .replace(/\[bi\](.*?)\[\/bi\]/g,
+          '<span style="font-weight:700;font-style:italic">$1</span>')
+        .replace(/\[color=(#[0-9a-fA-F]{3,8}|[a-z]+)\](.*?)\[\/color\]/g,
+          '<span style="color:$1">$2</span>')
+        .replace(/\[size=(\d+)\](.*?)\[\/size\]/g,
+          '<span style="font-size:$1px">$2</span>');
+    }
+
+    /* ────────────────────────────────────────
+       라인 → HTML
+    ──────────────────────────────────────── */
+    function renderLine(rawLine) {
+      const line = mergePreset(rawLine);
+      const type = line.type || 'dialog';
+
+      /* 이미지 */
+      if (type === 'image') {
+        return `
+        <div class="story-line type-image">
+          <img class="story-image" src="${line.src}" alt="${line.caption || ''}"
+               loading="lazy" onclick="openLightbox('${line.src}')">
+          ${line.caption ? `<div class="image-caption">${line.caption}</div>` : ''}
+        </div>`;
+      }
+
+      /* 선택지 */
+      if (type === 'choice') {
+        const itemsHtml = (line.choices || []).map(c => {
+          // result가 배열이면 lines로 렌더, 문자열이면 기존 방식
+          let resultHtml = '';
+          if (c.result) {
+            if (Array.isArray(c.result)) {
+              resultHtml = `<div class="choice-result">${c.result.map(renderLine).join('')}</div>`;
+            } else {
+              resultHtml = `<div class="choice-result">
+          <div class="story-line type-dialog">
+            <div class="speaker"></div>
+            <div class="line-text" style="font-size:${fontSize}px">${parseInline(c.result)}</div>
+          </div>
+        </div>`;
+            }
+          }
+
+          const hasResult = !!c.result;
+          return `
+          <div class="choice-item${hasResult ? '' : ' nothing'}" ${hasResult ? 'onclick="toggleChoice(this)"' : ''}>
+            <div class="choice-arrow"></div>
+            <div class="choice-body">
+              <div class="choice-title">${parseInline(c.text)}</div>${hasResult ? resultHtml : ''}
+              </div>
+              </div>`;
+        }).join('');
+
+        return `
+    <div class="story-line type-choice">
+      <div class="choice-list">${itemsHtml}</div>
+    </div>`;
+      }
+
+      /* 일반 텍스트 (dialog / system) */
+      const style = buildStyle(line);
+      const isSystemType = type === 'system';
+      const textClass = isSystemType ? 'line-text system' : 'line-text';
+      if (isSystemType) {
+        return `
+        <div class="story-line type-system">
+          <div class="${textClass}" style="${style}">${parseInline(line.text || '')}</div>
+        </div>`;
+      }
+      
+      // dialog: speaker 왼쪽 컬럼, text 오른쪽 컬럼
+      return `
+      <div class="story-line type-dialog">
+        <div class="speaker">${line.speaker || ''}</div>
+        <div class="${textClass}" style="${style}">${parseInline(line.text || '')}</div>
+      </div>`;
+    }
+
+    /* ────────────────────────────────────────
+       선택지 토글
+    ──────────────────────────────────────── */
+    function toggleChoice(el) {
+      el.classList.toggle('open');
+    }
+
+    /* ────────────────────────────────────────
+       챕터 전체 렌더
+    ──────────────────────────────────────── */
+    function renderViewer() {
+      const el = document.getElementById('viewer-content');
+      const total = currentPages.length;
+      const page = currentPages[currentPage];
+      const isFirst = currentPage === 0;
+      const isLast = currentPage >= total - 1;
+
+      const btnStyle = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;
+    background:var(--surface);border:0.5px solid var(--border2);
+    border-radius:var(--radius-sm);cursor:pointer;`;
+      const btnDisabled = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;
+    background:transparent;border:0.5px solid var(--border);
+    border-radius:var(--radius-sm);cursor:default;color:var(--text3);`;
+
+      const navHtml = currentPages.map((p, i) => `
+      <button class="episode-nav-btn${i === currentPage ? ' active' : ''}"
+      onclick="jumpToPage(${i})">${p.title}</button>
+      `).join('');
+
+      el.innerHTML = `
+      <div class="episode-nav">${navHtml}</div>
+      <div class="chapter-body">
+      <div style="font-size:20px;color:var(--text2);margin-bottom:1.25rem;">${page.title}</div>
+      ${page.lines.map(renderLine).join('')}
+    </div>
+    <div style="margin-top:2rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+      <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px;">
+        ${currentPage + 1} / ${total}
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="changePage(-1)" ${isFirst ? 'disabled' : ''}
+          style="${isFirst ? btnDisabled : btnStyle}color:${isFirst ? 'var(--text3)' : 'var(--text)'};">
+          ← 이전
+        </button>
+        ${isLast
+          ? `<button onclick="backToList()" style="${btnStyle}color:var(--text);">목록으로 →</button>`
+          : `<button onclick="changePage(1)"  style="${btnStyle}color:var(--text);">다음 →</button>`
+        }
+      </div>
+    </div>`;
+    }
+
+    function changePage(dir) {
+      currentPage = Math.max(0, Math.min(currentPages.length - 1, currentPage + dir));
+      document.querySelector('.main').scrollTop = 0;
+      renderViewer();
+    }
+
+    function jumpToPage(idx) {
+      currentPage = idx;
+      document.querySelector('.main').scrollTop = 0;
+      renderViewer();
+    }
+
+    function backToList() {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('sec-stories').classList.add('active');
+      document.getElementById('nav-stories').classList.add('active');
+    }
+
+    /* ────────────────────────────────────────
+       캐릭터
+    ──────────────────────────────────────── */
+    function renderChars() {
+      document.getElementById('char-grid').innerHTML = characters.map(c => `
+      <div class="char-card">
+        <div class="char-avatar" style="background:${c.color};color:${c.textColor}">${c.initials}</div>
+        <div class="char-name">${c.name}</div>
+        <div class="char-role">${c.rank}</div>
+        <div class="char-role">${c.role}</div>
+      </div>`).join('');
+    }
+
+    /* ────────────────────────────────────────
+       글꼴 크기 (설정)
+    ──────────────────────────────────────── */
+    function updateFontSize(val) {
+      fontSize = parseInt(val);
+      document.getElementById('font-val').textContent = val + 'px';
+      document.querySelectorAll('.line-text').forEach(el => {
+        el.style.fontSize = val + 'px';
+      });
+    }
+
+    /* ── 초기화 ── */
+    loadData();
+  </script>
+</body>
+
+</html>

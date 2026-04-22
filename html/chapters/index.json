@@ -1,0 +1,4 @@
+[
+  { "id": 1, "title": "프롤로그", "file": "chapters/prologue/index.json", "tags": ["메인", "프롤로그"] },
+  { "id": 1, "title": "MBCC-CR-001 혼돈의 구원 병원", "file": "chapters/01/index.json", "tags": ["메인"] }
+]

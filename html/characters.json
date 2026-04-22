@@ -1,0 +1,18 @@
+[
+  {
+    "name": "헤카테",
+    "rank": "A",
+    "role": "아케인",
+    "color": "#d1f0e4",
+    "textColor": "#0a5c3a",
+    "initials": "헤"
+  },
+  {
+    "name": "엘라",
+    "rank": "B",
+    "role": "퓨리",
+    "color": "#d6e8f8",
+    "textColor": "#0c3d6e",
+    "initials": "엘"
+  }
+]
