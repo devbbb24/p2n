@@ -17,11 +17,9 @@ struct ScriptLine
 	string type;
 	string speaker;
 	string text;
-	string color;
 	bool italic;
 	bool bold;
 	int size;
-	string textAlign;
 };
 
 json create_line_object(const ScriptLine& line)
@@ -46,11 +44,9 @@ json create_line_object(const ScriptLine& line)
 		}
 
 		obj["text"] = line.text;
-		if (!line.color.empty()) obj["color"] = line.color;
 		if (line.italic) obj["italic"] = true;
 		if (line.bold) obj["bold"] = true;
 		if (line.size > 0) obj["size"] = line.size;
-		if (!line.textAlign.empty()) obj["textAlign"] = line.textAlign;
 	}
 	return obj;
 }
@@ -76,46 +72,46 @@ regex orange("<org>");
 regex blue("<blue>");
 regex endColor("</red>|</org>|</blue>");
 
+string change_color(const string& str)
+{
+	auto text = str;
+	text = std::regex_replace(text, red, string("[color=#ff2222]"));
+	text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
+	text = std::regex_replace(text, blue, string("[color=#0041C2]"));
+	text = std::regex_replace(text, endColor, string("[/color]"));
+	return text;
+}
+
+
+const int COL_TYPE = 1;
+const int COL_SPEAKER = 2;
+const int COL_TEXT = 3;
+const int COL_ITALIC = 4;
+const int COL_BOLD = 5;
+const int COL_SIZE = 6;
+void set_text_and_option(json& j, OpenXLSX::XLWorksheet& sheet, int row)
+{
+	j["text"] = change_color(getCellStr(sheet, row, COL_TEXT));
+
+	if (getCellInt(sheet, row, COL_ITALIC) == 1)
+		j["italic"] = true;
+	if (getCellInt(sheet, row, COL_BOLD) == 1)
+		j["bold"] = true;
+}
+
 json convert_json(OpenXLSX::XLWorksheet& sheet)
 {
 	json root;
 	root["lines"] = json::array();
 
 	int rowCount = sheet.rowCount();
-	const int COL_TYPE = 1;
-	const int COL_SPEAKER = 2;
-	const int COL_TEXT = 3;
-	const int COL_COLOR = 4;
-	const int COL_ITALIC = 5;
-	const int COL_BOLD = 6;
-	const int COL_SIZE = 7;
-	const int COL_ALIGN = 8;
 
 	auto set_text = [&](json& line, int i)
 	{
-		auto text = getCellStr(sheet, i, COL_TEXT);
-		text = std::regex_replace(text, red, string("[color=#ff2222]"));
-		text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
-		text = std::regex_replace(text, blue, string("[color=#0041C2]"));
-		text = std::regex_replace(text, endColor, string("[/color]"));
-		line["text"] = text;
-
-		if (getCellInt(sheet, i, COL_ITALIC) == 1)
-			line["italic"] = true;
-		if (getCellInt(sheet, i, COL_BOLD) == 1)
-			line["bold"] = true;
-
-		std::string color = getCellStr(sheet, i, COL_COLOR);
-		if (!color.empty())
-			line["color"] = color;
-
+		set_text_and_option(line, sheet, i);
 		int size = getCellInt(sheet, i, COL_SIZE);
 		if (size > 0)
 			line["size"] = size;
-
-		std::string align = getCellStr(sheet, i, COL_ALIGN);
-		if (!align.empty())
-			line["textAlign"] = align;
 
 		root["lines"].push_back(line);
 	};
@@ -155,17 +151,8 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 						else
 							resLine["speaker"] = spk;
 
-						resLine["text"] = getCellStr(sheet, i, COL_TEXT);
-
-						// 추가 속성들 (필요한 경우에만 JSON에 포함)
-						std::string color = getCellStr(sheet, i, COL_COLOR);
-						if (!color.empty())
-							resLine["color"] = color;
-						if (getCellInt(sheet, i, COL_ITALIC) == 1)
-							resLine["italic"] = true;
-						if (getCellInt(sheet, i, COL_BOLD) == 1)
-							resLine["bold"] = true;
-
+						
+						set_text_and_option(resLine, sheet, i);
 						choiceItem["result"].push_back(resLine);
 
 						// 다음 행이 또 result인지 확인하고 아니면 break
@@ -209,6 +196,12 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 		{
 			json line;
 			line["preset"] = "nar-center";
+			set_text(line, i);
+		}
+		else if (type == "contour")
+		{
+			json line;
+			line["type"] = "contour";
 			set_text(line, i);
 		}
 	}

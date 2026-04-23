@@ -1,0 +1,20 @@
+{
+  "episodes": [
+    {
+      "title": "1. 악몽",
+      "file": "chapters/EN07/01.json"
+    },
+    {
+      "title": "2. ",
+      "file": "chapters/EN07/02.json"
+    },
+    {
+      "title": "3. ",
+      "file": "chapters/EN07/03.json"
+    },
+    {
+      "title": "4. ",
+      "file": "chapters/EN07/04.json"
+    }
+  ]
+}

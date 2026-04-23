@@ -3,6 +3,8 @@
 *.tlog
 [Dd]ebug/
 [Rr]elease/
+[~&]*.xlsx
+
 
 # Prerequisites
 *.d
