@@ -119,6 +119,7 @@
       overflow-y: auto;
       padding: 1.5rem;
       min-width: 0;
+      height: 100vh;
     }
 
     .section {
@@ -127,6 +128,51 @@
 
     .section.active {
       display: block;
+    }
+
+    /* 뷰어 섹션: sticky 헤더 + 스크롤 본문 */
+    #sec-viewer {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      /* main의 padding 상쇄 후 꽉 채우기 */
+      margin: -1.5rem;
+    }
+
+    #sec-viewer.active {
+      display: flex;
+    }
+
+    .viewer-nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .viewer-nav-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .viewer-nav-episodes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 0.5rem 1.5rem;
+    }
+
+    .viewer-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 5rem;
     }
 
     h2 {
@@ -187,13 +233,50 @@
       border-color: var(--border2);
     }
 
+    /* 배너 래퍼: 이미지 + 오버레이 텍스트를 겹치기 위한 컨테이너 */
+    .story-card-banner-wrap {
+      position: relative;
+      width: 100%;
+      height: 100px;
+      overflow: hidden;
+    }
+
     /* 배너 이미지 */
     .story-card-banner {
       width: 100%;
-      height: 120px;
+      height: 100%;
       object-fit: cover;
       display: block;
-      border-bottom: 0.5px solid var(--border);
+    }
+
+    /* 배너 위 그라디언트 오버레이 */
+    .story-card-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.18) 55%, transparent 100%);
+    }
+
+    /* 배너 위 제목 + 태그 */
+    .story-card-banner-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.6rem 1rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .story-card-banner-info .story-card-title {
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+
+    .story-card-banner-info .tag {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.28);
+      color: rgba(255,255,255,0.9);
     }
 
     /* 카드 본문: 좌/우 2분할 */
@@ -201,11 +284,20 @@
       display: grid;
       grid-template-columns: 0.2fr 1fr;
       gap: 0;
-      padding: 0.875rem 1rem;
       align-items: center;
     }
 
-    /* 왼쪽: 제목 + 태그 */
+    /* 배너 없을 때 본문에 패딩 */
+    .story-card-body.no-banner {
+      padding: 0.875rem 1rem;
+    }
+
+    /* 배너 있을 때 본문(에피소드 버튼만)에 패딩 */
+    .story-card-body.has-banner {
+      padding: 0.7rem 1rem;
+    }
+
+    /* 왼쪽: 제목 + 태그 (배너 없을 때만 표시) */
     .story-card-left {
       display: flex;
       flex-direction: column;
@@ -216,7 +308,7 @@
     }
 
     .story-card-title {
-      font-size: 14px;
+      font-size: 20px;
       font-weight: 500;
       color: var(--text);
       white-space: nowrap;
@@ -241,9 +333,18 @@
       padding-left: 0.75rem;
     }
 
+    /* 배너 있을 때 오른쪽 패널이 전체 너비 차지 + 구분선 없음 */
+    .story-card-body.has-banner {
+      grid-template-columns: 1fr;
+    }
+
+    .story-card-body.has-banner .story-card-right {
+      padding-left: 0;
+    }
+
     .episode-btn-group {
       display: flex;
-      gap: 5px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: flex-start;
     }
@@ -278,15 +379,6 @@
     }
 
     /* ── 뷰어 ── */
-    .viewer-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 0.5px solid var(--border);
-    }
-
     .back-btn {
       font-size: 12.5px;
       font-family: inherit;
@@ -298,6 +390,7 @@
       cursor: pointer;
       transition: background 0.1s, color 0.1s;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .back-btn:hover {
@@ -306,10 +399,13 @@
     }
 
     .viewer-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* 챕터 전체 출력 */
@@ -322,7 +418,7 @@
 
     .story-line {
       display: grid;
-      grid-template-columns: 100px 1fr;
+      grid-template-columns: 100px 0.9fr;
       gap: 0 1.25rem;
       margin-bottom: 1rem;
       align-items: baseline;
@@ -342,8 +438,8 @@
 
     .story-line.type-narration {
       display: block;
-      margin-left: 4rem;
-      margin-right: 4rem;
+      margin-left: 2rem;
+      margin-right: 2rem;
       margin-top: 1.5rem;
       margin-bottom: 1.5rem;
     }
@@ -364,6 +460,7 @@
       border: none;
     }
 
+    /* 선택지 스타일 */
     .story-line.type-choice {
       display: block;
       margin-left: 3rem;
@@ -372,7 +469,7 @@
       margin-bottom: 1.75rem;
       align-items: start;
     }
-
+    
     .choice-label {
       font-size: 11.5px;
       font-weight: 500;
@@ -424,11 +521,13 @@
       background: var(--surface);
     }
 
+    /* 이미지 */
     .story-line.type-image {
       display: block;
       margin-bottom: 1.5rem;
     }
 
+    /* 발화자 */
     .speaker {
       font-size: 11.5px;
       font-weight: 500;
@@ -441,6 +540,7 @@
       text-overflow: ellipsis;
     }
 
+    /* 대사 */
     .line-text {
       line-height: 1.5;
       color: var(--text);
@@ -459,9 +559,9 @@
     }
 
     .image-caption {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text3);
-      margin-top: 6px;
+      margin-top: -2.5rem;
       text-align: center;
     }
 
@@ -879,11 +979,14 @@
 
     <!-- 스토리 뷰어 -->
     <div id="sec-viewer" class="section">
-      <div class="viewer-header">
-        <button class="back-btn" onclick="backToList()">← 목록</button>
-        <span class="viewer-title" id="viewer-title"></span>
+      <div class="viewer-nav-bar">
+        <div class="viewer-nav-top">
+          <button class="back-btn" onclick="backToList()">← 목록</button>
+          <span class="viewer-title" id="viewer-title"></span>
+        </div>
+        <div class="viewer-nav-episodes" id="viewer-ep-nav"></div>
       </div>
-      <div id="viewer-content"></div>
+      <div class="viewer-scroll-body" id="viewer-content"></div>
     </div>
 
     <!-- 캐릭터 -->
@@ -1025,24 +1128,43 @@
         const epBtns = episodes.map((ep, i) =>
           `<button class="episode-btn" onclick="openChapterAtEpisode(${c.id}, ${i})">${ep.title || (i + 1) + '화'}</button>`
         ).join('');
-        const bannerHtml = c.banner
-          ? `<img class="story-card-banner" src="${c.banner}" alt="">`
-          : '';
-        return `
-        <div class="story-card">
-          ${bannerHtml}
-          <div class="story-card-body">
-            <div class="story-card-left">
-              <div class="story-card-title">${c.title}</div>
-              <div class="story-card-meta">
-                ${c.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        const hasBanner = !!c.banner;
+        if (hasBanner) {
+          // 배너 있음: 이미지 위에 제목+태그 오버레이, 하단에 에피소드 버튼
+          const tagsHtml = c.tags.map(t => `<span class="tag">${t}</span>`).join('');
+          return `
+          <div class="story-card">
+            <div class="story-card-banner-wrap">
+              <img class="story-card-banner" src="${c.banner}" alt="">
+              <div class="story-card-banner-overlay"></div>
+              <div class="story-card-banner-info">
+                <div class="story-card-title">${c.title}</div>
+                <div class="story-card-meta">${tagsHtml}</div>
               </div>
             </div>
-            <div class="story-card-right">
-              <div class="episode-btn-group">${epBtns}</div>
+            <div class="story-card-body has-banner">
+              <div class="story-card-right">
+                <div class="episode-btn-group">${epBtns}</div>
+              </div>
             </div>
-          </div>
-        </div>`;
+          </div>`;
+        } else {
+          // 배너 없음: 기존 2분할 레이아웃
+          return `
+          <div class="story-card">
+            <div class="story-card-body no-banner">
+              <div class="story-card-left">
+                <div class="story-card-title">${c.title}</div>
+                <div class="story-card-meta">
+                  ${c.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="story-card-right">
+                <div class="episode-btn-group">${epBtns}</div>
+              </div>
+            </div>
+          </div>`;
+        }
       }).join('');
     }
 
@@ -1088,7 +1210,7 @@
         }));
 
         currentPage = Math.min(startEpisode, currentPages.length - 1);
-        document.querySelector('.main').scrollTop = 0;
+        const sb = document.getElementById('viewer-content'); if(sb) sb.scrollTop = 0;
         renderViewer();
       } catch (err) {
         document.getElementById('viewer-content').innerHTML =
@@ -1157,7 +1279,7 @@
         </div>`;
       }
 
-      /* 구분선 (추가된 부분) */
+      /* 구분선 */
       if (type === 'contour') {
         return `
         <div class="story-line type-contour">
@@ -1238,6 +1360,7 @@
     ──────────────────────────────────────── */
     function renderViewer() {
       const el = document.getElementById('viewer-content');
+      const epNav = document.getElementById('viewer-ep-nav');
       const total = currentPages.length;
       const page = currentPages[currentPage];
       const isFirst = currentPage === 0;
@@ -1250,13 +1373,15 @@
     background:transparent;border:0.5px solid var(--border);
     border-radius:var(--radius-sm);cursor:default;color:var(--text3);`;
 
-      const navHtml = currentPages.map((p, i) => `
-      <button class="episode-nav-btn${i === currentPage ? ' active' : ''}"
-      onclick="jumpToPage(${i})">${p.title}</button>
-      `).join('');
+      // sticky 바에 에피소드 버튼 렌더
+      if (epNav) {
+        epNav.innerHTML = currentPages.map((p, i) => `
+        <button class="episode-nav-btn${i === currentPage ? ' active' : ''}"
+        onclick="jumpToPage(${i})">${p.title}</button>
+        `).join('');
+      }
 
       el.innerHTML = `
-      <div class="episode-nav">${navHtml}</div>
       <div class="chapter-body">
       <div style="font-size:20px;color:var(--text2);margin-bottom:1.25rem;">${page.title}</div>
       ${page.lines.map(renderLine).join('')}
@@ -1280,13 +1405,13 @@
 
     function changePage(dir) {
       currentPage = Math.max(0, Math.min(currentPages.length - 1, currentPage + dir));
-      document.querySelector('.main').scrollTop = 0;
+      const sb = document.getElementById('viewer-content'); if(sb) sb.scrollTop = 0;
       renderViewer();
     }
 
     function jumpToPage(idx) {
       currentPage = idx;
-      document.querySelector('.main').scrollTop = 0;
+      const sb = document.getElementById('viewer-content'); if(sb) sb.scrollTop = 0;
       renderViewer();
     }
 

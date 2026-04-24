@@ -77,7 +77,7 @@ string change_color(const string& str)
 	auto text = str;
 	text = std::regex_replace(text, red, string("[color=#ff2222]"));
 	text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
-	text = std::regex_replace(text, blue, string("[color=#0041C2]"));
+	text = std::regex_replace(text, blue, string("[color=#507de6]"));
 	text = std::regex_replace(text, endColor, string("[/color]"));
 	return text;
 }
@@ -135,12 +135,13 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 				json choiceItem;
 				choiceItem["text"] = getCellStr(sheet, i, COL_TEXT);
 
-				// 이 선택지 바로 다음에 result가 오는지 확인
+				// choice 다음 행에 result가 있는지 확인
 				if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "result")
 				{
 					choiceItem["result"] = json::array();
-					i++; // result 행으로 이동
+					i++;
 
+					// result에서도 speaker: text 형식으로 처리
 					while (i <= rowCount && getCellStr(sheet, i, COL_TYPE) == "result")
 					{
 						json resLine;
@@ -155,7 +156,7 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 						set_text_and_option(resLine, sheet, i);
 						choiceItem["result"].push_back(resLine);
 
-						// 다음 행이 또 result인지 확인하고 아니면 break
+						// 다음 행도 result면 이어서 진행
 						if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "result")
 							i++;
 						else
@@ -172,12 +173,13 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 			}
 			root["lines"].push_back(choiceGroup);
 		}
-		else if (type == "image" || type.starts_with("image"))
+		else if (type.starts_with("image"))
 		{
-			auto value = type == "image" ? getCellStr(sheet, i, COL_TEXT) : type;
+			auto caption = getCellStr(sheet, i, COL_TEXT);
 			root["lines"].push_back({
 				{"type", "image"},
-				{"src", value}
+				{"src", type},
+				{"caption", caption}
 				});
 		}
 		else if (type == "dialogue")

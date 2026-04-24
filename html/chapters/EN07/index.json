@@ -1,20 +1,28 @@
 {
   "episodes": [
     {
-      "title": "1. 악몽",
+      "title": "1. 유혹",
       "file": "chapters/EN07/01.json"
     },
     {
-      "title": "2. ",
+      "title": "2. 환상 속 악몽",
       "file": "chapters/EN07/02.json"
     },
     {
-      "title": "3. ",
+      "title": "3. 도사",
       "file": "chapters/EN07/03.json"
     },
     {
-      "title": "4. ",
+      "title": "4. 리진",
       "file": "chapters/EN07/04.json"
+    },
+    {
+      "title": "5. 대가",
+      "file": "chapters/EN07/05.json"
+    },
+    {
+      "title": "6. 집념",
+      "file": "chapters/EN07/06.json"
     }
   ]
 }
