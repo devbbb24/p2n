@@ -253,7 +253,7 @@
     .story-card-banner-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.18) 55%, transparent 100%);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.18) 55%, transparent 100%);
     }
 
     /* 배너 위 제목 + 태그 */
@@ -270,13 +270,13 @@
 
     .story-card-banner-info .story-card-title {
       color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     }
 
     .story-card-banner-info .tag {
-      background: rgba(255,255,255,0.18);
-      border-color: rgba(255,255,255,0.28);
-      color: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.28);
+      color: rgba(255, 255, 255, 0.9);
     }
 
     /* 카드 본문: 좌/우 2분할 */
@@ -469,7 +469,7 @@
       margin-bottom: 1.75rem;
       align-items: start;
     }
-    
+
     .choice-label {
       font-size: 11.5px;
       font-weight: 500;
@@ -826,13 +826,151 @@
       background: var(--surface);
       border: 0.5px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.25rem 1rem;
       text-align: center;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .char-info {
+      padding: 0.8rem 1rem;
     }
 
     .char-card:hover {
       border-color: var(--border2);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    .char-accent-bar {
+      height: 20px;
+      background: #ccc;
+    }
+
+    .char-card[data-rank="S"] .char-accent-bar {
+      background: #FFAF43;
+    }
+
+    .char-card[data-rank="A"] .char-accent-bar {
+      background: #9141C2;
+    }
+
+    .char-card[data-rank="B"] .char-accent-bar {
+      background: #4599E8;
+    }
+
+    .char-card[data-rank="S"]:hover {
+      border-color: #ff4757;
+    }
+
+    .char-avatar-container {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--border);
+    }
+
+    .char-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .char-avatar {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* ── 캐릭터 팝업 ── */
+    .char-popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .char-popup-overlay.open {
+      display: flex;
+    }
+
+    .char-popup {
+      width: min(680px, 100%);
+      height: min(80vh, 100%);
+      background: var(--bg);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+      animation: popIn 0.18s ease;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.96);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .char-popup-nav {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .char-popup-nav-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .char-popup-ep-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 0.25rem 0;
+    }
+
+    .char-popup-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 3rem 4rem;
+    }
+
+    .char-popup-body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .char-popup-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .char-popup-body::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
     }
 
     .char-avatar {
@@ -972,15 +1110,7 @@
 
   <nav class="sidebar">
     <div class="sidebar-logo">무기미도</div>
-
-    <div class="nav-item active" id="nav-stories" onclick="showSection('stories', this)">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="2" y="2" width="12" height="2" rx="1" fill="currentColor" />
-        <rect x="2" y="6.5" width="8" height="2" rx="1" fill="currentColor" />
-        <rect x="2" y="11" width="10" height="2" rx="1" fill="currentColor" />
-      </svg>
-      메인 스토리
-    </div>
+    <div id="sidebar-nav-items"></div>
 
     <div class="nav-item" id="nav-characters" onclick="showSection('characters', this)">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -1004,30 +1134,8 @@
 
   <main class="main">
 
-    <!-- 스토리 목록 -->
-    <div id="sec-stories" class="section active">
-      <h2>스토리 목록</h2>
-      <div class="search-wrap">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4" />
-          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-        <input class="search-input" id="search-input" type="text" placeholder="제목 또는 태그로 검색..." oninput="renderList()">
-      </div>
-      <div id="story-list"></div>
-    </div>
-
-    <!-- 스토리 뷰어 -->
-    <div id="sec-viewer" class="section">
-      <div class="viewer-nav-bar">
-        <div class="viewer-nav-top">
-          <button class="back-btn" onclick="backToList()">← 목록</button>
-          <span class="viewer-title" id="viewer-title"></span>
-        </div>
-        <div class="viewer-nav-episodes" id="viewer-ep-nav"></div>
-      </div>
-      <div class="viewer-scroll-body" id="viewer-content"></div>
-    </div>
+    <!-- 동적 스토리 섹션 (menus.json 기반으로 JS가 생성) -->
+    <div id="dynamic-sections"></div>
 
     <!-- 캐릭터 -->
     <div id="sec-characters" class="section">
@@ -1061,24 +1169,39 @@
 
   </main>
 
+  <!-- 캐릭터 팝업 -->
+  <div class="char-popup-overlay" id="char-popup-overlay" onclick="closeCharPopup()">
+    <div class="char-popup" onclick="event.stopPropagation()">
+      <div class="char-popup-nav">
+        <div class="char-popup-nav-top">
+          <span class="viewer-title" id="char-popup-title"></span>
+        </div>
+        <div class="char-popup-ep-nav" id="char-popup-ep-nav"></div>
+      </div>
+      <div class="char-popup-body" id="char-popup-body"></div>
+    </div>
+  </div>
+
   <div class="lightbox" id="lightbox" onclick="closeLightbox()">
     <img id="lightbox-img" src="" alt="">
   </div>
 
   <script>
     /* ── 상태 ── */
-    let chapters = [];
+    let menus = [];          // menus.json 에서 로드한 메뉴 목록
+    let menuData = {};       // { menuId: [ chapter, ... ] }
     let characters = [];
     let presets = {};
-    let currentChapter = null;
     let fontSize = 15;
-    let currentPages = [];
-    let currentPage = 0;
+
+    // 뷰어 상태 (현재 열려 있는 메뉴의 페이지)
+    let viewerMenuId = null;
+    let viewerPages = [];
+    let viewerPage = 0;
 
     /* ────────────────────────────────────────
-       JSON 로드
+       유틸
     ──────────────────────────────────────── */
-
     function openLightbox(src) {
       document.getElementById('lightbox-img').src = src;
       document.getElementById('lightbox').classList.add('open');
@@ -1086,58 +1209,14 @@
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
     }
-
     function scrollToTop() {
       document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     document.querySelector('.main').addEventListener('scroll', function () {
       const btn = document.getElementById('top-btn');
       if (this.scrollTop > 80) btn.classList.add('visible');
       else btn.classList.remove('visible');
     });
-
-    async function loadData() {
-      const listEl = document.getElementById('story-list');
-      listEl.innerHTML = '<div class="no-result">데이터 불러오는 중...</div>';
-      try {
-        const [idxRes, chRes, prRes] = await Promise.all([
-          fetch('chapters/index.json'),
-          fetch('characters.json'),
-          fetch('presets.json').catch(() => null)   // 없어도 OK
-        ]);
-
-        if (!idxRes.ok) throw new Error('chapters/index.json 을 찾을 수 없습니다.');
-        if (!chRes.ok) throw new Error('characters.json 을 찾을 수 없습니다.');
-
-        chapters = await idxRes.json();
-        characters = await chRes.json();
-        if (prRes && prRes.ok) presets = await prRes.json();
-
-        // 각 챕터의 에피소드 목록 미리 로드
-        await Promise.all(chapters.map(async (c) => {
-          try {
-            const res = await fetch(c.file);
-            if (res.ok) {
-              const data = await res.json();
-              c._episodes = data.episodes || [];
-            } else {
-              c._episodes = [];
-            }
-          } catch {
-            c._episodes = [];
-          }
-        }));
-
-        renderList();
-        renderChars();
-      } catch (err) {
-        listEl.innerHTML = `<div class="no-result" style="color:var(--text2);">
-          <div style="font-size:15px;font-weight:500;margin-bottom:6px;">파일을 불러오지 못했습니다</div>
-          <div style="font-size:12px;color:var(--text3);">${err.message}</div>
-          </div>`;
-      }
-    }
 
     /* ────────────────────────────────────────
        섹션 전환
@@ -1146,95 +1225,156 @@
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('sec-' + name).classList.add('active');
-      el.classList.add('active');
+      if (typeof el === 'string') document.getElementById(el).classList.add('active');
+      else el.classList.add('active');
     }
 
     /* ────────────────────────────────────────
-       스토리 목록
+       동적 DOM 생성
     ──────────────────────────────────────── */
-    function renderList() {
-      const q = document.getElementById('search-input').value.trim().toLowerCase();
-      const filtered = chapters.filter(c =>
-        c.title.toLowerCase().includes(q) ||
-        c.tags.some(t => t.toLowerCase().includes(q))
-      );
-      const el = document.getElementById('story-list');
-      if (!filtered.length) {
-        el.innerHTML = '<div class="no-result">검색 결과가 없습니다.</div>';
+    const LIST_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="2" y="2" width="12" height="2" rx="1" fill="currentColor"/>
+      <rect x="2" y="6.5" width="8" height="2" rx="1" fill="currentColor"/>
+      <rect x="2" y="11" width="10" height="2" rx="1" fill="currentColor"/>
+    </svg>`;
+
+    const SEARCH_SVG = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>`;
+
+    function buildMenuDOM(menu, isFirst) {
+      const id = menu.id;
+
+      // 1) 사이드바 nav 항목
+      const navEl = document.createElement('div');
+      navEl.className = 'nav-item' + (isFirst ? ' active' : '');
+      navEl.id = `nav-${id}`;
+      navEl.innerHTML = LIST_SVG + ` ${menu.label}`;
+      navEl.onclick = () => showSection(id, navEl);
+      document.getElementById('sidebar-nav-items').appendChild(navEl);
+
+      // 2) 목록 섹션
+      const listSec = document.createElement('div');
+      listSec.id = `sec-${id}`;
+      listSec.className = 'section' + (isFirst ? ' active' : '');
+      listSec.innerHTML = `
+        <h2>${menu.label}</h2>
+        <div class="search-wrap">
+          ${SEARCH_SVG}
+          <input class="search-input" id="search-${id}" type="text"
+            placeholder="제목 또는 태그로 검색..."
+            oninput="renderMenuList('${id}')">
+        </div>
+        <div id="list-${id}"></div>`;
+
+      // 3) 뷰어 섹션
+      const viewSec = document.createElement('div');
+      viewSec.id = `sec-viewer-${id}`;
+      viewSec.className = 'section';
+      viewSec.style.cssText = 'display:none;flex-direction:column;height:100%;margin:-1.5rem;';
+      viewSec.innerHTML = `
+        <div class="viewer-nav-bar">
+          <div class="viewer-nav-top">
+            <button class="back-btn" onclick="backToMenuList('${id}')">← 목록</button>
+            <span class="viewer-title" id="viewer-title-${id}"></span>
+          </div>
+          <div class="viewer-nav-episodes" id="viewer-ep-nav-${id}"></div>
+        </div>
+        <div class="viewer-scroll-body" id="viewer-content-${id}"></div>`;
+
+      // active 클래스 추가 시 flex 로 전환하도록 CSS 주입 (한 번만)
+      if (!document.getElementById('dynamic-viewer-style')) {
+        const st = document.createElement('style');
+        st.id = 'dynamic-viewer-style';
+        st.textContent = `.section[id^="sec-viewer-"].active{display:flex!important;}`;
+        document.head.appendChild(st);
+      }
+
+      document.getElementById('dynamic-sections').appendChild(listSec);
+      document.getElementById('dynamic-sections').appendChild(viewSec);
+    }
+
+    /* ────────────────────────────────────────
+       스토리 카드 HTML (공통)
+    ──────────────────────────────────────── */
+    function storyCardHTML(c, menuId) {
+      const episodes = c._episodes || [];
+      const epBtns = episodes.map((ep, i) =>
+        `<button class="episode-btn" onclick="openChapter('${menuId}',${c.id},${i})">${ep.title || (i + 1) + '화'}</button>`
+      ).join('');
+      if (c.banner) {
+        const tagsHtml = (c.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+        return `
+        <div class="story-card">
+          <div class="story-card-banner-wrap">
+            <img class="story-card-banner" src="${c.banner}" alt="">
+            <div class="story-card-banner-overlay"></div>
+            <div class="story-card-banner-info">
+              <div class="story-card-title">${c.title}</div>
+              <div class="story-card-meta">${tagsHtml}</div>
+            </div>
+          </div>
+          <div class="story-card-body has-banner">
+            <div class="story-card-right"><div class="episode-btn-group">${epBtns}</div></div>
+          </div>
+        </div>`;
+      }
+      return `
+      <div class="story-card">
+        <div class="story-card-body no-banner">
+          <div class="story-card-left">
+            <div class="story-card-title">${c.title}</div>
+            <div class="story-card-meta">${(c.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+          </div>
+          <div class="story-card-right"><div class="episode-btn-group">${epBtns}</div></div>
+        </div>
+      </div>`;
+    }
+
+    /* ────────────────────────────────────────
+       목록 렌더 (메뉴별)
+    ──────────────────────────────────────── */
+    function renderMenuList(menuId) {
+      const q = (document.getElementById(`search-${menuId}`)?.value || '').trim().toLowerCase();
+      const chapters = menuData[menuId] || [];
+      const el = document.getElementById(`list-${menuId}`);
+      if (!chapters.length) {
+        el.innerHTML = '<div class="no-result">데이터가 없습니다.</div>';
         return;
       }
-      el.innerHTML = filtered.map(c => {
-        const episodes = c._episodes || [];
-        const epBtns = episodes.map((ep, i) =>
-          `<button class="episode-btn" onclick="openChapterAtEpisode(${c.id}, ${i})">${ep.title || (i + 1) + '화'}</button>`
-        ).join('');
-        const hasBanner = !!c.banner;
-        if (hasBanner) {
-          // 배너 있음: 이미지 위에 제목+태그 오버레이, 하단에 에피소드 버튼
-          const tagsHtml = c.tags.map(t => `<span class="tag">${t}</span>`).join('');
-          return `
-          <div class="story-card">
-            <div class="story-card-banner-wrap">
-              <img class="story-card-banner" src="${c.banner}" alt="">
-              <div class="story-card-banner-overlay"></div>
-              <div class="story-card-banner-info">
-                <div class="story-card-title">${c.title}</div>
-                <div class="story-card-meta">${tagsHtml}</div>
-              </div>
-            </div>
-            <div class="story-card-body has-banner">
-              <div class="story-card-right">
-                <div class="episode-btn-group">${epBtns}</div>
-              </div>
-            </div>
-          </div>`;
-        } else {
-          // 배너 없음: 기존 2분할 레이아웃
-          return `
-          <div class="story-card">
-            <div class="story-card-body no-banner">
-              <div class="story-card-left">
-                <div class="story-card-title">${c.title}</div>
-                <div class="story-card-meta">
-                  ${c.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-                </div>
-              </div>
-              <div class="story-card-right">
-                <div class="episode-btn-group">${epBtns}</div>
-              </div>
-            </div>
-          </div>`;
-        }
-      }).join('');
+      const filtered = chapters.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        (c.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+      el.innerHTML = filtered.length
+        ? filtered.map(c => storyCardHTML(c, menuId)).join('')
+        : '<div class="no-result">검색 결과가 없습니다.</div>';
     }
 
     /* ────────────────────────────────────────
-       스토리 열기
+       챕터 열기 (범용)
     ──────────────────────────────────────── */
-    async function openChapterAtEpisode(id, episodeIndex) {
-      await openChapter(id, episodeIndex);
-    }
+    async function openChapter(menuId, chapterId, startEpisode = 0) {
+      const chapters = menuData[menuId] || [];
+      const meta = chapters.find(c => c.id === chapterId);
+      viewerMenuId = menuId;
 
-    async function openChapter(id, startEpisode = 0) {
-      const meta = chapters.find(c => c.id === id);
-      document.getElementById('viewer-title').textContent = meta.title;
-      document.getElementById('viewer-content').innerHTML =
+      document.getElementById(`viewer-title-${menuId}`).textContent = meta.title;
+      document.getElementById(`viewer-content-${menuId}`).innerHTML =
         '<div class="no-result">불러오는 중...</div>';
 
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('sec-viewer').classList.add('active');
-      document.getElementById('nav-stories').classList.add('active');
+      document.getElementById(`sec-viewer-${menuId}`).classList.add('active');
+      document.getElementById(`nav-${menuId}`).classList.add('active');
 
       try {
-        // 1) 챕터 인덱스 파일 로드
         const chapRes = await fetch(meta.file);
         if (!chapRes.ok) throw new Error(`${meta.file} 을 찾을 수 없습니다.`);
         const chapData = await chapRes.json();
-
         if (chapData.presets) Object.assign(presets, chapData.presets);
 
-        // 2) episodes 배열의 각 화 파일을 병렬 fetch
         const episodes = chapData.episodes || [];
         const pageResults = await Promise.all(
           episodes.map(ep => fetch(ep.file).then(r => {
@@ -1243,24 +1383,138 @@
           }))
         );
 
-        // 3) { title, lines } 형태로 정규화
-        currentPages = pageResults.map((data, i) => ({
+        viewerPages = pageResults.map((data, i) => ({
           title: data.title || episodes[i].title || `${i + 1}화`,
           lines: data.lines || []
         }));
 
-        currentPage = Math.min(startEpisode, currentPages.length - 1);
-        const sb = document.getElementById('viewer-content'); if(sb) sb.scrollTop = 0;
+        viewerPage = Math.min(startEpisode, viewerPages.length - 1);
+        const sb = document.getElementById(`viewer-content-${menuId}`);
+        if (sb) sb.scrollTop = 0;
         renderViewer();
       } catch (err) {
-        document.getElementById('viewer-content').innerHTML =
+        document.getElementById(`viewer-content-${menuId}`).innerHTML =
           `<div class="no-result" style="color:var(--text2);">${err.message}</div>`;
       }
     }
 
     /* ────────────────────────────────────────
+       뷰어 렌더 (공통)
+    ──────────────────────────────────────── */
+    function renderViewer() {
+      const id = viewerMenuId;
+      const el = document.getElementById(`viewer-content-${id}`);
+      const epNav = document.getElementById(`viewer-ep-nav-${id}`);
+      const total = viewerPages.length;
+      const page = viewerPages[viewerPage];
+      const isFirst = viewerPage === 0;
+      const isLast = viewerPage >= total - 1;
+
+      const btnStyle = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;`;
+      const btnDisabled = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;background:transparent;border:0.5px solid var(--border);border-radius:var(--radius-sm);cursor:default;color:var(--text3);`;
+
+      if (epNav) {
+        epNav.innerHTML = viewerPages.map((p, i) =>
+          `<button class="episode-nav-btn${i === viewerPage ? ' active' : ''}"
+            onclick="jumpToPage(${i})">${p.title}</button>`
+        ).join('');
+      }
+
+      el.innerHTML = `
+      <div class="chapter-body">
+        <div style="font-size:20px;color:var(--text2);margin-bottom:1.25rem;">${page.title}</div>
+        ${page.lines.map(renderLine).join('')}
+      </div>
+      <div style="margin-top:5rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+        <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:2rem;margin-bottom:2rem;">
+          ${viewerPage + 1} / ${total}
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="changePage(-1)" ${isFirst ? 'disabled' : ''}
+            style="${isFirst ? btnDisabled : btnStyle}color:${isFirst ? 'var(--text3)' : 'var(--text)'};">
+            ← 이전
+          </button>
+          ${isLast
+          ? `<button onclick="backToMenuList('${id}')" style="${btnStyle}color:var(--text);">목록으로 →</button>`
+          : `<button onclick="changePage(1)"  style="${btnStyle}color:var(--text);">다음 →</button>`
+        }
+        </div>
+      </div>`;
+    }
+
+    function changePage(dir) {
+      viewerPage = Math.max(0, Math.min(viewerPages.length - 1, viewerPage + dir));
+      const sb = document.getElementById(`viewer-content-${viewerMenuId}`);
+      if (sb) sb.scrollTop = 0;
+      renderViewer();
+    }
+
+    function jumpToPage(idx) {
+      viewerPage = idx;
+      const sb = document.getElementById(`viewer-content-${viewerMenuId}`);
+      if (sb) sb.scrollTop = 0;
+      renderViewer();
+    }
+
+    function backToMenuList(menuId) {
+      showSection(menuId, `nav-${menuId}`);
+    }
+
+    /* ────────────────────────────────────────
+       JSON 로드
+    ──────────────────────────────────────── */
+    async function loadData() {
+      try {
+        // menus.json + characters.json + presets.json 동시 로드
+        const [menuRes, chRes, prRes] = await Promise.all([
+          fetch('menus.json'),
+          fetch('characters.json'),
+          fetch('presets.json').catch(() => null)
+        ]);
+
+        if (!menuRes.ok) throw new Error('menus.json 을 찾을 수 없습니다.');
+        if (!chRes.ok) throw new Error('characters.json 을 찾을 수 없습니다.');
+
+        menus = await menuRes.json();
+        characters = await chRes.json();
+        if (prRes && prRes.ok) presets = await prRes.json();
+
+        // 메뉴별 DOM 생성
+        menus.forEach((menu, idx) => buildMenuDOM(menu, idx === 0));
+
+        // 메뉴별 chapters/index.json 로드 + 각 챕터의 에피소드 미리 로드
+        await Promise.all(menus.map(async (menu) => {
+          try {
+            const res = await fetch(menu.index);
+            if (!res.ok) { menuData[menu.id] = []; return; }
+            const chapters = await res.json();
+            menuData[menu.id] = chapters;
+            await Promise.all(chapters.map(async (c) => {
+              try {
+                const r = await fetch(c.file);
+                c._episodes = r.ok ? (await r.json()).episodes || [] : [];
+              } catch { c._episodes = []; }
+            }));
+          } catch { menuData[menu.id] = []; }
+        }));
+
+        // 전체 목록 렌더
+        menus.forEach(menu => renderMenuList(menu.id));
+        renderChars();
+
+      } catch (err) {
+        document.getElementById('dynamic-sections').innerHTML =
+          `<div class="section active" id="sec-error">
+            <div class="no-result" style="color:var(--text2);">
+              <div style="font-size:15px;font-weight:500;margin-bottom:6px;">파일을 불러오지 못했습니다</div>
+              <div style="font-size:12px;color:var(--text3);">${err.message}</div>
+            </div>
+          </div>`;
+      }
+    }
+
+    /* ────────────────────────────────────────
        프리셋 병합
-       라인 자체 속성이 프리셋보다 우선
     ──────────────────────────────────────── */
     function mergePreset(line) {
       if (!line.preset || !presets[line.preset]) return line;
@@ -1283,23 +1537,14 @@
 
     /* ────────────────────────────────────────
        인라인 태그 파서
-       지원 태그: [b]...[/b]  [i]...[/i]
-                  [color=#hex]...[/color]
-                  [size=N]...[/size]
-                  [bi]...[/bi]  (bold+italic)
     ──────────────────────────────────────── */
     function parseInline(text) {
       return text
-        .replace(/\[b\](.*?)\[\/b\]/g,
-          '<span style="font-weight:700">$1</span>')
-        .replace(/\[i\](.*?)\[\/i\]/g,
-          '<span style="font-style:italic">$1</span>')
-        .replace(/\[bi\](.*?)\[\/bi\]/g,
-          '<span style="font-weight:700;font-style:italic">$1</span>')
-        .replace(/\[color=(#[0-9a-fA-F]{3,8}|[a-z]+)\](.*?)\[\/color\]/g,
-          '<span style="color:$1">$2</span>')
-        .replace(/\[size=(\d+)\](.*?)\[\/size\]/g,
-          '<span style="font-size:$1px">$2</span>');
+        .replace(/\[b\](.*?)\[\/b\]/g, '<span style="font-weight:700">$1</span>')
+        .replace(/\[i\](.*?)\[\/i\]/g, '<span style="font-style:italic">$1</span>')
+        .replace(/\[bi\](.*?)\[\/bi\]/g, '<span style="font-weight:700;font-style:italic">$1</span>')
+        .replace(/\[color=(#[0-9a-fA-F]{3,8}|[a-z]+)\](.*?)\[\/color\]/g, '<span style="color:$1">$2</span>')
+        .replace(/\[size=(\d+)\](.*?)\[\/size\]/g, '<span style="font-size:$1px">$2</span>');
     }
 
     /* ────────────────────────────────────────
@@ -1309,7 +1554,6 @@
       const line = mergePreset(rawLine);
       const type = line.type || 'dialog';
 
-      /* 이미지 */
       if (type === 'image') {
         return `
         <div class="story-line type-image">
@@ -1319,118 +1563,91 @@
         </div>`;
       }
 
-      /* 구분선 */
       if (type === 'contour') {
-        return `
-        <div class="story-line type-contour">
-          <hr class="contour-line">
-        </div>`;
+        return `<div class="story-line type-contour"><hr class="contour-line"></div>`;
       }
-      
-      /* 선택지 */
+
       if (type === 'choice') {
         const itemsHtml = (line.choices || []).map(c => {
-          // result가 배열이면 lines로 렌더, 문자열이면 기존 방식
           let resultHtml = '';
           if (c.result) {
             if (Array.isArray(c.result)) {
               resultHtml = `<div class="choice-result">${c.result.map(renderLine).join('')}</div>`;
             } else {
               resultHtml = `<div class="choice-result">
-          <div class="story-line type-dialog">
-            <div class="speaker"></div>
-            <div class="line-text" style="font-size:${fontSize}px">${parseInline(c.result)}</div>
-          </div>
-        </div>`;
+                <div class="story-line type-dialog">
+                  <div class="speaker"></div>
+                  <div class="line-text" style="font-size:${fontSize}px">${parseInline(c.result)}</div>
+                </div></div>`;
             }
           }
-
           const hasResult = !!c.result;
           return `
           <div class="choice-item${hasResult ? '' : ' nothing'}" ${hasResult ? 'onclick="toggleChoice(this)"' : ''}>
             <div class="choice-arrow"></div>
             <div class="choice-body">
-              <div class="choice-title">${parseInline(c.text)}</div>${hasResult ? resultHtml : ''}
-              </div>
-              </div>`;
+              <div class="choice-title">${parseInline(c.text)}</div>
+              ${hasResult ? resultHtml : ''}
+            </div>
+          </div>`;
         }).join('');
-
-        return `
-    <div class="story-line type-choice">
-      <div class="choice-list">${itemsHtml}</div>
-    </div>`;
+        return `<div class="story-line type-choice"><div class="choice-list">${itemsHtml}</div></div>`;
       }
 
-      /* 콜아웃 블록 */
       if (type === 'callout') {
         const color = line.color || '';
         const icon = line.icon || '';
         const colorStyle = color ? `--callout-color: ${color};` : '';
-
-        // lines 배열이 있으면 다중 줄 렌더
         let innerHtml;
         if (Array.isArray(line.lines) && line.lines.length > 0) {
           const linesHtml = line.lines.map(l => {
             const spk = l.speaker || '';
             const txt = parseInline(l.text || '');
             const lineStyle = buildStyle(Object.assign({}, line, l));
-            // speaker가 있는 줄: speaker | text 그리드
-            // speaker가 없는 줄: 전체 폭 텍스트
-            if (spk) {
-              return `
-              <div class="callout-line">
-                <div class="callout-line-speaker">${spk}</div>
-                <div class="callout-line-text" style="${lineStyle}">${txt}</div>
-              </div>`;
-            } else {
-              return `
-              <div class="callout-line" style="grid-template-columns:1fr">
-                <div class="callout-line-text" style="${lineStyle}">${txt}</div>
-              </div>`;
-            }
+            return spk
+              ? `<div class="callout-line">
+                   <div class="callout-line-speaker">${spk}</div>
+                   <div class="callout-line-text" style="${lineStyle}">${txt}</div>
+                 </div>`
+              : `<div class="callout-line" style="grid-template-columns:1fr">
+                   <div class="callout-line-text" style="${lineStyle}">${txt}</div>
+                 </div>`;
           }).join('');
           innerHtml = `
             ${line.speaker ? `<div class="callout-speaker">${line.speaker}</div>` : ''}
             <div class="callout-lines">${linesHtml}</div>`;
         } else {
-          // 단일 줄 (기존 방식)
           const style = buildStyle(line);
           innerHtml = `
             ${line.speaker ? `<div class="callout-speaker">${line.speaker}</div>` : ''}
             <div class="callout-text" style="${style}">${parseInline(line.text || '')}</div>`;
         }
-
         return `
         <div class="story-line type-callout">
           <div class="callout-block" style="${colorStyle}">
             <div class="callout-accent-bar"></div>
             ${icon ? `<div class="callout-icon">${icon}</div>` : ''}
-            <div class="callout-inner">${innerHtml}
-            </div>
+            <div class="callout-inner">${innerHtml}</div>
           </div>
         </div>`;
       }
 
-      /* 일반 텍스트 (dialog / system) */
       const style = buildStyle(line);
       const isSystemType = type === 'system';
       const textClass = isSystemType ? 'line-text system' : 'line-text';
+
       if (isSystemType) {
-        return `
-        <div class="story-line type-system">
+        return `<div class="story-line type-system">
           <div class="${textClass}" style="${style}">${parseInline(line.text || '')}</div>
         </div>`;
       }
 
-      if (type === 'narration')
-      {
-        return `
-      <div class="story-line type-narration">
-        <div class="${textClass}" style="${style}">${parseInline(line.text || '')}</div>
-      </div>`;
+      if (type === 'narration') {
+        return `<div class="story-line type-narration">
+          <div class="${textClass}" style="${style}">${parseInline(line.text || '')}</div>
+        </div>`;
       }
-      
-      // dialog: speaker 왼쪽 컬럼, text 오른쪽 컬럼
+
       return `
       <div class="story-line type-dialog">
         <div class="speaker">${line.speaker || ''}</div>
@@ -1446,84 +1663,158 @@
     }
 
     /* ────────────────────────────────────────
-       챕터 전체 렌더
-    ──────────────────────────────────────── */
-    function renderViewer() {
-      const el = document.getElementById('viewer-content');
-      const epNav = document.getElementById('viewer-ep-nav');
-      const total = currentPages.length;
-      const page = currentPages[currentPage];
-      const isFirst = currentPage === 0;
-      const isLast = currentPage >= total - 1;
-
-      const btnStyle = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;
-    background:var(--surface);border:0.5px solid var(--border2);
-    border-radius:var(--radius-sm);cursor:pointer;`;
-      const btnDisabled = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;
-    background:transparent;border:0.5px solid var(--border);
-    border-radius:var(--radius-sm);cursor:default;color:var(--text3);`;
-
-      // sticky 바에 에피소드 버튼 렌더
-      if (epNav) {
-        epNav.innerHTML = currentPages.map((p, i) => `
-        <button class="episode-nav-btn${i === currentPage ? ' active' : ''}"
-        onclick="jumpToPage(${i})">${p.title}</button>
-        `).join('');
-      }
-
-      el.innerHTML = `
-      <div class="chapter-body">
-      <div style="font-size:20px;color:var(--text2);margin-bottom:1.25rem;">${page.title}</div>
-      ${page.lines.map(renderLine).join('')}
-    </div>
-    <div style="margin-top:5rem;padding-top:1rem;border-top:0.5px solid var(--border);">
-      <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:2rem;margin-bottom:2rem;">
-        ${currentPage + 1} / ${total}
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="changePage(-1)" ${isFirst ? 'disabled' : ''}
-          style="${isFirst ? btnDisabled : btnStyle}color:${isFirst ? 'var(--text3)' : 'var(--text)'};">
-          ← 이전
-        </button>
-        ${isLast
-          ? `<button onclick="backToList()" style="${btnStyle}color:var(--text);">목록으로 →</button>`
-          : `<button onclick="changePage(1)"  style="${btnStyle}color:var(--text);">다음 →</button>`
-        }
-      </div>
-    </div>`;
-    }
-
-    function changePage(dir) {
-      currentPage = Math.max(0, Math.min(currentPages.length - 1, currentPage + dir));
-      const sb = document.getElementById('viewer-content'); if(sb) sb.scrollTop = 0;
-      renderViewer();
-    }
-
-    function jumpToPage(idx) {
-      currentPage = idx;
-      const sb = document.getElementById('viewer-content'); if(sb) sb.scrollTop = 0;
-      renderViewer();
-    }
-
-    function backToList() {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('sec-stories').classList.add('active');
-      document.getElementById('nav-stories').classList.add('active');
-    }
-
-    /* ────────────────────────────────────────
        캐릭터
     ──────────────────────────────────────── */
+    let charPopupPages = [];
+    let charPopupPage = 0;
+
     function renderChars() {
-      document.getElementById('char-grid').innerHTML = characters.map(c => `
-      <div class="char-card">
-        <div class="char-avatar" style="background:${c.color};color:${c.textColor}">${c.initials}</div>
-        <div class="char-name">${c.name}</div>
-        <div class="char-role">${c.rank}</div>
-        <div class="char-role">${c.role}</div>
-      </div>`).join('');
+      const rankPriority = { 'S': 1, 'A': 2, 'B': 3 };
+      const roleOrder = ['엔듀라', '퓨리', '움브라', '레티클', '아케인', '카타리시스'];
+      const grouped = characters.reduce((acc, c) => {
+        if (!acc[c.role]) acc[c.role] = [];
+        acc[c.role].push(c);
+        return acc;
+      }, {});
+
+      for (let role in grouped) {
+        grouped[role].sort((a, b) => {
+          const pA = rankPriority[a.rank] || 99;
+          const pB = rankPriority[b.rank] || 99;
+          if (pA !== pB) return pA - pB;
+          return a.name.localeCompare(b.name);
+        });
+      }
+
+      const sortedRoles = Object.keys(grouped).sort((a, b) => {
+        let idxA = roleOrder.indexOf(a);
+        let idxB = roleOrder.indexOf(b);
+        if (idxA === -1) idxA = 99;
+        if (idxB === -1) idxB = 99;
+        return idxA - idxB || a.localeCompare(b);
+      });
+
+      const finalHtml = sortedRoles.map(role => `
+    <div class="role-group" style="margin-bottom: 2rem; width: 100%;">
+      <h3 style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border2); color: var(--text2); max-width:200px">${role}</h3>
+      <div class="char-grid">
+        ${grouped[role].map(c => `
+          <div class="char-card" data-rank="${c.rank}" onclick="openCharPopup(${c.id})">
+            <div class="char-accent-bar"></div>
+            <div class="char-info">
+              <div class="char-avatar-container">
+                <img src="${c.image}" alt="${c.name}" class="char-img">
+              </div>
+              <div class="char-name">${c.name}</div>
+              <div class="char-role">${c.role}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+      document.getElementById('char-grid').outerHTML = `<div id="char-grid-wrapper">${finalHtml}</div>`;
     }
+
+    async function openCharPopup(charId) {
+      const char = characters.find(c => c.id === charId);
+      if (!char) return;
+
+      document.getElementById('char-popup-title').textContent = char.name;
+      document.getElementById('char-popup-body').innerHTML = '<div class="no-result">불러오는 중...</div>';
+      document.getElementById('char-popup-ep-nav').innerHTML = '';
+      document.getElementById('char-popup-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      // char.file 이 없으면 기본 프로필만 표시
+      if (!char.file) {
+        charPopupPages = [{ title: char.name, lines: [] }];
+        charPopupPage = 0;
+        renderCharPopup();
+        return;
+      }
+
+      try {
+        const res = await fetch(char.file);
+        if (!res.ok) throw new Error(`${char.file} 을 찾을 수 없습니다.`);
+        const data = await res.json();
+        if (data.presets) Object.assign(presets, data.presets);
+
+        const episodes = data.episodes || [];
+        const pageResults = await Promise.all(
+          episodes.map(ep => fetch(ep.file).then(r => {
+            if (!r.ok) throw new Error(`${ep.file} 을 찾을 수 없습니다.`);
+            return r.json();
+          }))
+        );
+
+        charPopupPages = pageResults.map((d, i) => ({
+          title: d.title || episodes[i].title || `${i + 1}화`,
+          lines: d.lines || []
+        }));
+        charPopupPage = 0;
+        renderCharPopup();
+      } catch (err) {
+        document.getElementById('char-popup-body').innerHTML =
+          `<div class="no-result" style="color:var(--text2);">${err.message}</div>`;
+      }
+    }
+
+    function renderCharPopup() {
+      const epNav = document.getElementById('char-popup-ep-nav');
+      const body = document.getElementById('char-popup-body');
+      const total = charPopupPages.length;
+      const page = charPopupPages[charPopupPage];
+      const isFirst = charPopupPage === 0;
+      const isLast = charPopupPage >= total - 1;
+
+      epNav.innerHTML = charPopupPages.map((p, i) =>
+        `<button class="episode-nav-btn${i === charPopupPage ? ' active' : ''}"
+          onclick="jumpCharPopupPage(${i})">${p.title}</button>`
+      ).join('');
+
+      const btnStyle = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;`;
+      const btnDisabled = `flex:1;font-family:inherit;font-size:13.5px;padding:9px;background:transparent;border:0.5px solid var(--border);border-radius:var(--radius-sm);cursor:default;color:var(--text3);`;
+
+      body.innerHTML = `
+        <div class="chapter-body">
+          <div style="font-size:20px;color:var(--text2);margin-bottom:1.25rem;">${page.title}</div>
+          ${page.lines.map(renderLine).join('')}
+        </div>
+        <div style="margin-top:5rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+          <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:2rem;margin-bottom:2rem;">
+            ${charPopupPage + 1} / ${total}
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="changeCharPopupPage(-1)" ${isFirst ? 'disabled' : ''}
+              style="${isFirst ? btnDisabled : btnStyle}color:${isFirst ? 'var(--text3)' : 'var(--text)'};">← 이전</button>
+            <button onclick="changeCharPopupPage(1)" ${isLast ? 'disabled' : ''}
+              style="${isLast ? btnDisabled : btnStyle}color:${isLast ? 'var(--text3)' : 'var(--text)'};">다음 →</button>
+          </div>
+        </div>`;
+      body.scrollTop = 0;
+    }
+
+    function jumpCharPopupPage(idx) {
+      charPopupPage = idx;
+      renderCharPopup();
+    }
+
+    function changeCharPopupPage(dir) {
+      charPopupPage = Math.max(0, Math.min(charPopupPages.length - 1, charPopupPage + dir));
+      renderCharPopup();
+    }
+
+    function closeCharPopup() {
+      document.getElementById('char-popup-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // ESC 로 팝업 닫기
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeCharPopup();
+    });
 
     /* ────────────────────────────────────────
        글꼴 크기 (설정)
