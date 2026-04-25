@@ -22,35 +22,6 @@ struct ScriptLine
 	int size;
 };
 
-json create_line_object(const ScriptLine& line)
-{
-	json obj;
-
-	if (line.type == "image")
-	{
-		obj["type"] = "image";
-		obj["src"] = line.text;
-	}
-	else
-	{
-		// 나레이션 판정 (speaker가 없으면 nar)
-		if (line.speaker.empty())
-		{
-			obj["preset"] = "nar";
-		}
-		else
-		{
-			obj["speaker"] = line.speaker;
-		}
-
-		obj["text"] = line.text;
-		if (line.italic) obj["italic"] = true;
-		if (line.bold) obj["bold"] = true;
-		if (line.size > 0) obj["size"] = line.size;
-	}
-	return obj;
-}
-
 std::string getCellStr(OpenXLSX::XLWorksheet& sheet, int row, int col)
 {
 	auto cell = sheet.cell(row, col);
@@ -71,17 +42,8 @@ regex red("<red>");
 regex orange("<org>");
 regex blue("<blue>");
 regex endColor("</red>|</org>|</blue>");
-
-string change_color(const string& str)
-{
-	auto text = str;
-	text = std::regex_replace(text, red, string("[color=#ff2222]"));
-	text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
-	text = std::regex_replace(text, blue, string("[color=#507de6]"));
-	text = std::regex_replace(text, endColor, string("[/color]"));
-	return text;
-}
-
+regex sizeStart("<fs=");
+regex sizeEnd("</f>");
 
 const int COL_TYPE = 1;
 const int COL_SPEAKER = 2;
@@ -89,14 +51,62 @@ const int COL_TEXT = 3;
 const int COL_ITALIC = 4;
 const int COL_BOLD = 5;
 const int COL_SIZE = 6;
-void set_text_and_option(json& j, OpenXLSX::XLWorksheet& sheet, int row)
+
+string change_color_style(const string& str)
 {
-	j["text"] = change_color(getCellStr(sheet, row, COL_TEXT));
+	auto text = str;
+	text = std::regex_replace(text, red, string("[color=#ff2222]"));
+	text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
+	text = std::regex_replace(text, blue, string("[color=#7684A2]"));
+	text = std::regex_replace(text, endColor, string("[/color]"));
+	return text;
+}
+string change_color_html(const string& str)
+{
+	auto text = str;
+	text = std::regex_replace(text, red, string("<font color=#ff2222>"));
+	text = std::regex_replace(text, orange, string("<font color=#E48F5D>"));
+	text = std::regex_replace(text, blue, string("<font color=#7684A2>"));
+	text = std::regex_replace(text, endColor, string("</font>"));
+	return text;
+}
+
+void set_text_style(json& j, OpenXLSX::XLWorksheet& sheet, int row)
+{
+	j["text"] = change_color_style(getCellStr(sheet, row, COL_TEXT));
 
 	if (getCellInt(sheet, row, COL_ITALIC) == 1)
 		j["italic"] = true;
 	if (getCellInt(sheet, row, COL_BOLD) == 1)
 		j["bold"] = true;
+	if (auto size = getCellInt(sheet, row, COL_SIZE))
+		j["fontSize"] = size;
+}
+
+string set_html(string& text, OpenXLSX::XLWorksheet& sheet, int row)
+{
+	text = change_color_style(text);
+
+	if (getCellInt(sheet, row, COL_ITALIC) == 1)
+		text = format("<i>{}</i>", text);
+	if (getCellInt(sheet, row, COL_BOLD) == 1)
+		text = format("<b>{}</b>", text);
+	if (auto size = getCellInt(sheet, row, COL_SIZE))
+		text = format("<font size={}>{}</font>", size, text);
+	return text;
+}
+
+void set_line(json& j, OpenXLSX::XLWorksheet& sheet, int row)
+{
+	auto text = getCellStr(sheet, row, COL_TEXT);
+	if (!text.empty())
+		set_text_style(j, sheet, row);
+	else
+		j["text"] = "";
+
+	auto speaker = getCellStr(sheet, row, COL_SPEAKER);
+	if (!speaker.empty())
+		j["speaker"] = change_color_html(speaker);
 }
 
 json convert_json(OpenXLSX::XLWorksheet& sheet)
@@ -105,58 +115,71 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 	root["lines"] = json::array();
 
 	int rowCount = sheet.rowCount();
-
-	auto set_text = [&](json& line, int i)
-	{
-		set_text_and_option(line, sheet, i);
-		int size = getCellInt(sheet, i, COL_SIZE);
-		if (size > 0)
-			line["size"] = size;
-
-		root["lines"].push_back(line);
-	};
-
-
 	for (int i = 2; i <= rowCount; ++i)
 	{
-		std::string type = getCellStr(sheet, i, COL_TYPE);
+		string type = getCellStr(sheet, i, COL_TYPE);
 		if (type.empty())
 			type = "dialogue";
 
-		if (type == "choice")
+		if (type == "callout")
+		{
+			json group;
+			group["type"] = "callout";
+			group["lines"] = json::array();
+
+			while (i <= rowCount && getCellStr(sheet, i, COL_TYPE) == "callout")
+			{
+				json line;
+				set_line(line, sheet, i);
+				group["lines"].push_back(line);
+
+				if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "callout")
+					i++;
+				else
+					break;
+			}
+			root["lines"].push_back(group);
+		}
+		else if (type == "choice")
 		{
 			json choiceGroup;
 			choiceGroup["preset"] = "choice";
 			choiceGroup["choices"] = json::array();
 
-			// 연속된 선택지들 처리
 			while (i <= rowCount && getCellStr(sheet, i, COL_TYPE) == "choice")
 			{
 				json choiceItem;
-				choiceItem["text"] = getCellStr(sheet, i, COL_TEXT);
+				auto text = getCellStr(sheet, i, COL_TEXT);
+				choiceItem["text"] = set_html(text, sheet, i);
 
-				// choice 다음 행에 result가 있는지 확인
 				if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "result")
 				{
 					choiceItem["result"] = json::array();
 					i++;
 
-					// result에서도 speaker: text 형식으로 처리
 					while (i <= rowCount && getCellStr(sheet, i, COL_TYPE) == "result")
 					{
-						json resLine;
-						std::string spk = getCellStr(sheet, i, COL_SPEAKER);
+						json line;
+						auto speaker = getCellStr(sheet, i, COL_SPEAKER);
+						if (speaker.starts_with("image"))
+						{
+							line["type"] = "image";
+							line["src"] = speaker;
+							auto caption = getCellStr(sheet, i, COL_TEXT);
+							if (!caption.empty())
+								line["caption"] = caption;
 
-						if (spk.empty())
-							resLine["preset"] = "nar";
+						}
+						else if (speaker.empty())
+						{
+							line["preset"] = "nar";
+							set_line(line, sheet, i);
+						}
 						else
-							resLine["speaker"] = spk;
+							set_line(line, sheet, i);
 
-						
-						set_text_and_option(resLine, sheet, i);
-						choiceItem["result"].push_back(resLine);
+						choiceItem["result"].push_back(line);
 
-						// 다음 행도 result면 이어서 진행
 						if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "result")
 							i++;
 						else
@@ -165,7 +188,6 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 				}
 				choiceGroup["choices"].push_back(choiceItem);
 
-				// 다음 행이 또 choice인지 확인
 				if (i + 1 <= rowCount && getCellStr(sheet, i + 1, COL_TYPE) == "choice")
 					i++;
 				else 
@@ -175,36 +197,39 @@ json convert_json(OpenXLSX::XLWorksheet& sheet)
 		}
 		else if (type.starts_with("image"))
 		{
+			json line;
 			auto caption = getCellStr(sheet, i, COL_TEXT);
-			root["lines"].push_back({
-				{"type", "image"},
-				{"src", type},
-				{"caption", caption}
-				});
+			if (!caption.empty())
+				line["caption"] = caption;
+
+			line["type"] = "image";
+			line["src"] = type;
+
+			root["lines"].push_back(line);
 		}
 		else if (type == "dialogue")
 		{
 			json line;
-			std::string spk = getCellStr(sheet, i, COL_SPEAKER);
-
-			if (spk.empty())
+			string speaker = getCellStr(sheet, i, COL_SPEAKER);
+			if (speaker.empty())
 				line["preset"] = "nar";
-			else
-				line["speaker"] = spk;
 
-			set_text(line, i);
+			set_line(line, sheet, i);
+			root["lines"].push_back(line);
 		}
 		else if (type == "nar-center")
 		{
 			json line;
 			line["preset"] = "nar-center";
-			set_text(line, i);
+			set_line(line, sheet, i);
+
+			root["lines"].push_back(line);
 		}
 		else if (type == "contour")
 		{
 			json line;
 			line["type"] = "contour";
-			set_text(line, i);
+			root["lines"].push_back(line);
 		}
 	}
 	return root;
