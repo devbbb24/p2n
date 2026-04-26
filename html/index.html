@@ -130,12 +130,35 @@
       display: block;
     }
 
-    /* 뷰어 섹션: sticky 헤더 + 스크롤 본문 */
+    .section[id^="sec-viewer-"] {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: var(--sidebar-w);
+      width: calc(100% - var(--sidebar-w));
+      background: var(--bg);
+      z-index: 20;
+    }
+
+    .section[id^="sec-viewer-"].active {
+      display: flex !important;
+    }
+
+    .viewer-nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0.65rem 1.25rem;
+    }
+
     #sec-viewer {
       display: none;
       flex-direction: column;
       height: 100%;
-      /* main의 padding 상쇄 후 꽉 채우기 */
       margin: -1.5rem;
     }
 
@@ -172,21 +195,29 @@
     .viewer-scroll-body {
       flex: 1;
       overflow-y: auto;
-      padding: 5rem;
+      padding: 2rem 5rem 5rem 5rem;
     }
 
     h2 {
       font-size: 18px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 1rem;
       letter-spacing: -0.4px;
     }
 
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+    
     /* ── 검색 ── */
     .search-wrap {
       position: relative;
-      margin-bottom: 1rem;
+      width: 200px;
+      flex-shrink: 0;
     }
 
     .search-wrap svg {
@@ -460,67 +491,6 @@
       border: none;
     }
 
-    /* 선택지 스타일 */
-    .story-line.type-choice {
-      display: block;
-      margin-left: 3rem;
-      margin-right: 5rem;
-      gap: 0 1.25rem;
-      margin-bottom: 1.75rem;
-      align-items: start;
-    }
-
-    .choice-label {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--text3);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      text-align: left;
-      padding-bottom: 0.4em;
-      grid-column: 2;
-    }
-
-    .choice-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      align-items: stretch;
-      grid-column: 2;
-    }
-
-    .choice-item {
-      display: flex;
-      align-items: stretch;
-      border: 0.5px solid var(--border2);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      background: var(--surface);
-    }
-
-    .choice-item.nothing {
-      cursor: default;
-      opacity: 0.7;
-    }
-
-    .choice-item.nothing .choice-body {
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-    }
-
-    .choice-item.nothing .choice-arrow::before {
-      content: '-';
-      font-size: 14px;
-    }
-
-    .choice-item.nothing:hover {
-      border-color: var(--border2);
-      background: var(--surface);
-    }
-
     /* 이미지 */
     .story-line.type-image {
       display: block;
@@ -602,17 +572,12 @@
 
     /* 선택지 블록 */
     .story-line.type-choice {
-      margin-top: 1.75rem;
-      bottom: 1.75rem;
-    }
-
-    .choice-label {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--text3);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
+      display: block;
+      margin-left: 3rem;
+      margin-right: 5rem;
+      gap: 0 1.25rem;
+      margin-bottom: 1.75rem;
+      align-items: start;
     }
 
     .choice-list {
@@ -633,6 +598,28 @@
       transition: border-color 0.15s, background 0.15s;
       background: var(--surface);
     }
+
+    .choice-item.nothing {
+      cursor: default;
+      opacity: 0.7;
+    }
+
+    .choice-item.nothing .choice-body {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .choice-item.nothing .choice-arrow::before {
+      content: '-';
+      font-size: 14px;
+    }
+
+    .choice-item.nothing:hover {
+      border-color: var(--border2);
+      background: var(--surface);
+    }
+
 
     .choice-item:hover {
       border-color: var(--accent);
@@ -678,8 +665,7 @@
 
     .choice-result {
       display: none;
-      margin-top: 0;
-      margin-bottom: 1.75rem;
+      margin-bottom: 0.25rem;
       padding-top: 0;
       border-top: none;
       line-height: 1.7;
@@ -1160,8 +1146,7 @@
 
       <div class="setting-card">
         <div class="setting-label">버전 정보</div>
-        <div class="setting-desc">내 스토리 리더 v1.0</div>
-        <div class="setting-desc" style="margin-top:2px;">더블클릭으로 실행되는 HTML 앱</div>
+        <div class="setting-desc">무끼얏호우 v1.0</div>
       </div>
     </div>
 
@@ -1259,29 +1244,35 @@
       listSec.id = `sec-${id}`;
       listSec.className = 'section' + (isFirst ? ' active' : '');
       listSec.innerHTML = `
+      <div class="section-header">
         <h2>${menu.label}</h2>
         <div class="search-wrap">
           ${SEARCH_SVG}
           <input class="search-input" id="search-${id}" type="text"
-            placeholder="제목 또는 태그로 검색..."
+            placeholder="검색..."
             oninput="renderMenuList('${id}')">
         </div>
-        <div id="list-${id}"></div>`;
+      </div>
+      <div id="list-${id}"></div>`;
 
       // 3) 뷰어 섹션
       const viewSec = document.createElement('div');
       viewSec.id = `sec-viewer-${id}`;
       viewSec.className = 'section';
-      viewSec.style.cssText = 'display:none;flex-direction:column;height:100%;margin:-1.5rem;';
+      viewSec.style.cssText = '';
+
       viewSec.innerHTML = `
-        <div class="viewer-nav-bar">
-          <div class="viewer-nav-top">
-            <button class="back-btn" onclick="backToMenuList('${id}')">← 목록</button>
-            <span class="viewer-title" id="viewer-title-${id}"></span>
-          </div>
-          <div class="viewer-nav-episodes" id="viewer-ep-nav-${id}"></div>
-        </div>
-        <div class="viewer-scroll-body" id="viewer-content-${id}"></div>`;
+    <div class="viewer-nav-bar">
+      <div class="viewer-nav-top">
+        <button class="back-btn" onclick="backToMenuList('${id}')">← 목록</button>
+        <span class="viewer-title" id="viewer-title-${id}"></span>
+      </div>
+      <div class="viewer-nav-episodes" id="viewer-ep-nav-${id}"></div>
+    </div>
+    <div class="viewer-scroll-body" id="viewer-content-${id}"></div>`;
+
+      document.getElementById('dynamic-sections').appendChild(listSec);
+      document.getElementById('dynamic-sections').appendChild(viewSec);
 
       // active 클래스 추가 시 flex 로 전환하도록 CSS 주입 (한 번만)
       if (!document.getElementById('dynamic-viewer-style')) {

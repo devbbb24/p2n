@@ -2,16 +2,16 @@
   {
     "id": "main",
     "label": "메인 스토리",
-    "index": "chapters/index.json"
+    "index": "scripts/chapters/index.json"
   },
   {
     "id": "sub",
-    "label": "끝없는 악몽",
-    "index": "endlessNightmare/index.json"
+    "label": "이벤트 스토리",
+    "index": "scripts/sub/index.json"
   },
   {
-    "id": "side",
-    "label": "몽경",
-    "index": "sidequests/index.json"
+    "id": "endless",
+    "label": "끝없는 악몽",
+    "index": "scripts/endlessNightmare/index.json"
   }
 ]

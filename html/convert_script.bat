@@ -1,21 +1,26 @@
 @echo off
 setlocal enabledelayedexpansion
 
-cd %~dp0..\scripts\
+pushd ..
+set "p2n=%cd%"
+set "targetDir=%p2n%\html\scripts"
+set "scriptDir=%p2n%\scripts"
+popd
 
-for %%x in (*.json) do del %%x
+cd %scriptDir%
+for %%x in (%scriptDir%\*.json) do del %%x
+start /b /wait %scriptDir%\ExcelConverter.exe
+cd %p2n%
 
-start /b /wait ExcelConverter.exe
+for /r %scriptDir% %%F in (*.json) do (
+    set "filePath=%%~dpF"
+    set "relPath=!filePath:%scriptDir%\=!"
 
-set outDir=%~dp0chapters
-for %%x in (*.json) do (
-    set "filename=%%~nx"
-    for /f "tokens=1* delims=_" %%a in ("!filename!") do (
-        set "foldername=%%a"
-        set "newname=%%b"
-        if not exist "!outDir!\!foldername!" (mkdir "!outDir!\!foldername!")
-        move "%%x" "!outDir!\!foldername!\!newname!.json"
-    )
+    set "dest=%targetDir%\!relPath!"
+    
+    if not exist "!dest!" (mkdir "!dest!")
+    move "%%F" "!dest!%%~nxF"
 )
+endlocal
 
 echo done.

@@ -1,8 +1,8 @@
 {
   "episodes": [
-    { "title": "1. 깨어나다", "file": "chapters/prologue/01.json" },
-    { "title": "2. 그림자", "file": "chapters/prologue/02.json" },
-    { "title": "3. 화이트 오크", "file": "chapters/prologue/03.json" },
-    { "title": "4. 시작", "file": "chapters/prologue/04.json" }
+    { "title": "1. 깨어나다", "file": "scripts/chapters/prologue/01.json" },
+    { "title": "2. 그림자", "file": "scripts/chapters/prologue/02.json" },
+    { "title": "3. 화이트 오크", "file": "scripts/chapters/prologue/03.json" },
+    { "title": "4. 시작", "file": "scripts/chapters/prologue/04.json" }
   ]
 }

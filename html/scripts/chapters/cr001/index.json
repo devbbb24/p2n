@@ -1,0 +1,12 @@
+{
+  "episodes": [
+    { "title": "1-1 신디케이트", "file": "scripts/chapters/cr001/01.json" },
+    { "title": "1-2 척살", "file": "scripts/chapters/cr001/02.json" },
+    { "title": "Sd-101 버팀목", "file": "scripts/chapters/cr001/sd101.json" },
+    { "title": "1-3 접촉 · 군단", "file": "scripts/chapters/cr001/03.json" },
+    { "title": "Sd-102 정면 대결", "file": "scripts/chapters/cr001/sd102.json" },
+    { "title": "1-4 접촉 · 구원 병원", "file": "scripts/chapters/cr001/04.json" },
+    { "title": "1-5 R의 정보", "file": "scripts/chapters/cr001/05.json" },
+    { "title": "1-6 화해", "file": "scripts/chapters/cr001/06.json" }
+  ]
+}

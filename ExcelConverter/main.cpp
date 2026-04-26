@@ -41,7 +41,8 @@ int getCellInt(OpenXLSX::XLWorksheet& sheet, int row, int col)
 regex red("<red>");
 regex orange("<org>");
 regex blue("<blue>");
-regex endColor("</red>|</org>|</blue>");
+regex voice("<vc>");
+regex endColor("</red>|</org>|</blue>|</vc>");
 regex sizeStart("<fs=");
 regex sizeEnd("</f>");
 
@@ -58,6 +59,7 @@ string change_color_style(const string& str)
 	text = std::regex_replace(text, red, string("[color=#ff2222]"));
 	text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
 	text = std::regex_replace(text, blue, string("[color=#7684A2]"));
+	text = std::regex_replace(text, voice, string("[color=#6D63E5]"));
 	text = std::regex_replace(text, endColor, string("[/color]"));
 	return text;
 }
@@ -67,6 +69,7 @@ string change_color_html(const string& str)
 	text = std::regex_replace(text, red, string("<font color=#ff2222>"));
 	text = std::regex_replace(text, orange, string("<font color=#E48F5D>"));
 	text = std::regex_replace(text, blue, string("<font color=#7684A2>"));
+	text = std::regex_replace(text, voice, string("<font color=#6D63E5>"));
 	text = std::regex_replace(text, endColor, string("</font>"));
 	return text;
 }
@@ -239,7 +242,7 @@ void parse(const filesystem::path& file)
 {
 	Log(file.filename().string());
 
-	OpenXLSX::XLDocument doc(file.filename().string());
+	OpenXLSX::XLDocument doc(file.string());
 	auto wb = doc.workbook();
 	for (const auto& sheetName : wb.worksheetNames())
 	{
@@ -256,9 +259,16 @@ void parse(const filesystem::path& file)
 			throw runtime_error("Needs at least 2 of row counts.");
 
 		auto spreadSheetName = file.filename().replace_extension("").string();
-		auto outFile = format("{}_{}.json", spreadSheetName, sheetName);
+		auto outFile = sheetName + ".json";
 
-		ofstream ofs(outFile);
+		auto path = file;
+		path = path.remove_filename();
+		path /= spreadSheetName;
+
+		if (!exists(path))
+			std::filesystem::create_directory(path);
+
+		ofstream ofs(path / outFile);
 		ofs << convert_json(wks);
 	}
 
@@ -273,7 +283,7 @@ void parse_all_in_directory(const filesystem::path& path)
 			entry.path().extension() == ".xlsx" &&
 			*entry.path().filename().string().data() != '~')
 		{
-			parse(entry.path().filename());
+			parse(entry);
 		}
 	}
 }

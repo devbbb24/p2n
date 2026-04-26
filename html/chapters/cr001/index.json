@@ -1,8 +1,0 @@
-{
-  "episodes": [
-    { "title": "1. 깨어나다", "file": "chapters/cr001/01.json" },
-    { "title": "2. 그림자", "file": "chapters/cr001/02.json" },
-    { "title": "3. 화이트 오크", "file": "chapters/cr001/03.json" },
-    { "title": "4. 시작", "file": "chapters/cr001/04.json" }
-  ]
-}
