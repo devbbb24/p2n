@@ -12,6 +12,7 @@
     { "title": "Sd-103 부서진 꼭두각시", "file": "scripts/chapters/cr001/sd103.json" },
     { "title": "1-8 구원 병원 공방전", "file": "scripts/chapters/cr001/08.json" },
     { "title": "1-9 의사 · 브랜드", "file": "scripts/chapters/cr001/09.json" },
-    { "title": "Re1-9 구원 병원에서의 재회", "file": "scripts/chapters/cr001/10.json" }
+    { "title": "Re1-9 구원 병원에서의 재회", "file": "scripts/chapters/cr001/10.json" },
+    { "title": "Mz-01 비경 · 차가운 안개", "file": "scripts/chapters/cr001/mz01.json" }
   ]
 }
