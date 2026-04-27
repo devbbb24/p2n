@@ -505,9 +505,7 @@
       letter-spacing: 0.3px;
       text-align: right;
       padding-top: 0.2em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      word-break: keep-all;
     }
 
     /* 대사 */
@@ -604,12 +602,6 @@
       opacity: 0.7;
     }
 
-    .choice-item.nothing .choice-body {
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-    }
-
     .choice-item.nothing .choice-arrow::before {
       content: '-';
       font-size: 14px;
@@ -665,7 +657,7 @@
 
     .choice-result {
       display: none;
-      margin-bottom: 0.25rem;
+      margin-bottom: 1rem;
       padding-top: 0;
       border-top: none;
       line-height: 1.7;

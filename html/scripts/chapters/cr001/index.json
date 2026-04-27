@@ -7,6 +7,11 @@
     { "title": "Sd-102 정면 대결", "file": "scripts/chapters/cr001/sd102.json" },
     { "title": "1-4 접촉 · 구원 병원", "file": "scripts/chapters/cr001/04.json" },
     { "title": "1-5 R의 정보", "file": "scripts/chapters/cr001/05.json" },
-    { "title": "1-6 화해", "file": "scripts/chapters/cr001/06.json" }
+    { "title": "1-6 화해", "file": "scripts/chapters/cr001/06.json" },
+    { "title": "1-7 냄새를 맡는 하이에나", "file": "scripts/chapters/cr001/07.json" },
+    { "title": "Sd-103 부서진 꼭두각시", "file": "scripts/chapters/cr001/sd103.json" },
+    { "title": "1-8 구원 병원 공방전", "file": "scripts/chapters/cr001/08.json" },
+    { "title": "1-9 의사 · 브랜드", "file": "scripts/chapters/cr001/09.json" },
+    { "title": "Re1-9 구원 병원에서의 재회", "file": "scripts/chapters/cr001/10.json" }
   ]
 }
