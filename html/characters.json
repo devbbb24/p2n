@@ -7,14 +7,6 @@
     "color": "#d6e8f8",
     "textColor": "#0c3d6e",
     "image": "images/00-02/01.png",
-    "file": "chars/hella/index.json"
-  },
-  {
-    "id": 19,
-    "name": "헤카테",
-    "rank": "A",
-    "role": "아케인",
-    "image": "images/00-02/01.png",
-    "file": "chars/hecate/index.json"
+    "file": "scripts/char/hella/index.json"
   }
 ]

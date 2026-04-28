@@ -11,13 +11,13 @@
     "title": "MBCC-CR-001 혼돈의 구원 병원 part A",
     "file": "scripts/chapters/cr001/index.json",
     "tags": ["메인"],
-    "banner": "images/01/31.png"
+    "banner": "images/01/06.png"
   },
   {
     "id": 3,
     "title": "MBCC-CR-001 혼돈의 구원 병원 part B",
     "file": "scripts/chapters/cr002/index.json",
     "tags": ["메인"],
-    "banner": "images/01/22.png"
+    "banner": "images/01/33.png"
   }
 ]

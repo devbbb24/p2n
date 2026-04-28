@@ -1,0 +1,6 @@
+{
+  "episodes": [
+    { "title": "1단계", "file": "scripts/char/hella/1.json" },
+    { "title": "2단계", "file": "scripts/char/hella/2.json" }
+  ]
+}
