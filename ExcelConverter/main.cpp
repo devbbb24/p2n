@@ -42,7 +42,8 @@ regex red("<red>");
 regex orange("<org>");
 regex blue("<blue>");
 regex voice("<vc>");
-regex endColor("</red>|</org>|</blue>|</vc>");
+regex green("<green>");
+regex endColor("</red>|</org>|</blue>|</vc>|</green>");
 regex sizeStart("<fs=");
 regex sizeEnd("</f>");
 
@@ -60,6 +61,7 @@ string change_color_style(const string& str)
 	text = std::regex_replace(text, orange, string("[color=#E48F5D]"));
 	text = std::regex_replace(text, blue, string("[color=#7684A2]"));
 	text = std::regex_replace(text, voice, string("[color=#6D63E5]"));
+	text = std::regex_replace(text, green, string("[color=#5BB190]"));
 	text = std::regex_replace(text, endColor, string("[/color]"));
 	return text;
 }
@@ -70,6 +72,7 @@ string change_color_html(const string& str)
 	text = std::regex_replace(text, orange, string("<font color=#E48F5D>"));
 	text = std::regex_replace(text, blue, string("<font color=#7684A2>"));
 	text = std::regex_replace(text, voice, string("<font color=#6D63E5>"));
+	text = std::regex_replace(text, green, string("<font color=#5BB190>"));
 	text = std::regex_replace(text, endColor, string("</font>"));
 	return text;
 }

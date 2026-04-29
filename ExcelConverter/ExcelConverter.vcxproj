@@ -75,7 +75,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)OpenXLSX\prebuilt\x64</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /s /d /y $(outDir)$(projectname).exe $(solutiondir)..\scripts\*</Command>
+      <Command>xcopy /s /d /y $(outDir)$(projectname).exe $(solutiondir)..\excel\*</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

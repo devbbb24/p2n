@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 pushd ..
 set "p2n=%cd%"
 set "targetDir=%p2n%\html\scripts"
-set "scriptDir=%p2n%\scripts"
+set "scriptDir=%p2n%\excel"
 popd
 
 cd %scriptDir%
