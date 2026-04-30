@@ -1068,6 +1068,11 @@
       color: var(--text);
     }
 
+    /* picture 요소가 레이아웃에 영향 주지 않도록 — 자식 img가 부모의 직속처럼 동작 */
+    picture {
+      display: contents;
+    }
+
     /* ── 스크롤바 ── */
     .main::-webkit-scrollbar {
       width: 5px;
@@ -1184,8 +1189,35 @@
     /* ────────────────────────────────────────
        유틸
     ──────────────────────────────────────── */
+    // 원본 경로(foo.png) → WebP 변형(foo.webp / foo-sm.webp) 경로 생성
+    function webpVariant(src, sm) {
+      if (!src) return src;
+      const dot = src.lastIndexOf('.');
+      const base = dot >= 0 ? src.slice(0, dot) : src;
+      return base + (sm ? '-sm.webp' : '.webp');
+    }
+
+    // <picture>로 모바일/데스크톱 분기 + 원본 fallback
+    // opts: { alt, className, lazy, onclick }
+    function pictureHTML(src, opts) {
+      if (!src) return '';
+      opts = opts || {};
+      const sm = webpVariant(src, true);
+      const full = webpVariant(src, false);
+      const cls = opts.className ? ` class="${opts.className}"` : '';
+      const alt = ` alt="${opts.alt || ''}"`;
+      const lazy = opts.lazy ? ' loading="lazy"' : '';
+      const click = opts.onclick ? ` onclick="${opts.onclick}"` : '';
+      return `<picture>` +
+        `<source media="(max-width: 768px)" type="image/webp" srcset="${sm}">` +
+        `<source type="image/webp" srcset="${full}">` +
+        `<img src="${src}"${cls}${alt}${lazy}${click}>` +
+        `</picture>`;
+    }
+
     function openLightbox(src) {
-      document.getElementById('lightbox-img').src = src;
+      // 라이트박스도 풀 WebP를 사용 (PNG보다 가벼우면서 동일 화질)
+      document.getElementById('lightbox-img').src = webpVariant(src, false);
       document.getElementById('lightbox').classList.add('open');
     }
     function closeLightbox() {
@@ -1383,7 +1415,7 @@
         return `
         <div class="story-card">
           <div class="story-card-banner-wrap">
-            <img class="story-card-banner" src="${c.banner}" alt="">
+            ${pictureHTML(c.banner, { className: 'story-card-banner', lazy: true })}
             <div class="story-card-banner-overlay"></div>
             <div class="story-card-banner-info">
               <div class="story-card-title">${c.title}</div>
@@ -1661,8 +1693,12 @@
       if (type === 'image') {
         return `
         <div class="story-line type-image">
-          <img class="story-image" src="${line.src}" alt="${line.caption || ''}"
-               loading="lazy" onclick="openLightbox('${line.src}')">
+          ${pictureHTML(line.src, {
+            className: 'story-image',
+            alt: line.caption || '',
+            lazy: true,
+            onclick: `openLightbox('${line.src}')`
+          })}
           ${line.caption ? `<div class="image-caption">${line.caption}</div>` : ''}
         </div>`;
       }
@@ -1807,7 +1843,7 @@
             <div class="char-accent-bar"></div>
             <div class="char-info">
               <div class="char-avatar-container">
-                <img src="${c.image}" alt="${c.name}" class="char-img">
+                ${pictureHTML(c.image, { className: 'char-img', alt: c.name, lazy: true })}
               </div>
               <div class="char-name">${c.name}</div>
               <div class="char-role">${c.role}</div>
