@@ -1073,6 +1073,76 @@
       display: contents;
     }
 
+    /* ── 사이드바 트리 ── */
+    #sidebar-nav-items {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    #sidebar-nav-items::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #sidebar-nav-items::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px;
+    }
+
+    .tree-children {
+      display: none;
+    }
+
+    .tree-menu.expanded > .tree-children,
+    .tree-chapter.expanded > .tree-children {
+      display: block;
+    }
+
+    .tree-row-chapter {
+      display: block;
+      padding: 6px 0.75rem 6px 2.25rem;
+      font-size: 12.5px;
+      color: var(--text2);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.1s, color 0.1s;
+      border-right: 2px solid transparent;
+    }
+
+    .tree-row-chapter:hover {
+      background: var(--active-bg);
+      color: var(--text);
+    }
+
+    .tree-row-episode {
+      display: block;
+      padding: 5px 0.75rem 5px 3rem;
+      font-size: 12px;
+      color: var(--text3);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.1s, color 0.1s;
+      border-right: 2px solid transparent;
+    }
+
+    .tree-row-episode:hover {
+      background: var(--active-bg);
+      color: var(--text);
+    }
+
+    .tree-row-episode.active {
+      background: var(--active-bg);
+      color: var(--text);
+      font-weight: 500;
+      border-right-color: var(--accent);
+    }
+
     /* ── 스크롤바 ── */
     .main::-webkit-scrollbar {
       width: 5px;
@@ -1220,6 +1290,15 @@
       document.getElementById('lightbox-img').src = webpVariant(src, false);
       document.getElementById('lightbox').classList.add('open');
     }
+
+    function escapeAttr(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
     }
@@ -1323,11 +1402,10 @@
     ──────────────────────────────────────── */
     function showSection(name, el) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('sec-' + name).classList.add('active');
-      if (typeof el === 'string') document.getElementById(el).classList.add('active');
-      else el.classList.add('active');
+      const sec = document.getElementById('sec-' + name);
+      if (sec) sec.classList.add('active');
       pushRoute({ type: 'section', id: name });
+      updateSidebarState();
     }
 
     /* ────────────────────────────────────────
@@ -1347,13 +1425,7 @@
     function buildMenuDOM(menu, isFirst) {
       const id = menu.id;
 
-      // 1) 사이드바 nav 항목
-      const navEl = document.createElement('div');
-      navEl.className = 'nav-item' + (isFirst ? ' active' : '');
-      navEl.id = `nav-${id}`;
-      navEl.innerHTML = LIST_SVG + ` ${menu.label}`;
-      navEl.onclick = () => showSection(id, navEl);
-      document.getElementById('sidebar-nav-items').appendChild(navEl);
+      // 사이드바 nav 항목은 buildSidebarTree() 에서 트리 형태로 생성
 
       // 2) 목록 섹션
       const listSec = document.createElement('div');
@@ -1400,6 +1472,91 @@
 
       document.getElementById('dynamic-sections').appendChild(listSec);
       document.getElementById('dynamic-sections').appendChild(viewSec);
+    }
+
+    /* ────────────────────────────────────────
+       사이드바 트리 (메뉴 → 챕터 → 에피소드)
+    ──────────────────────────────────────── */
+    function buildSidebarTree() {
+      const container = document.getElementById('sidebar-nav-items');
+      container.innerHTML = menus.map(menu => {
+        const chapters = menuData[menu.id] || [];
+        const chaptersHtml = chapters.map(c => {
+          const episodes = c._episodes || [];
+          const epsHtml = episodes.map((ep, i) => {
+            const epTitle = ep.title || ((i + 1) + '화');
+            return `<div class="tree-row-episode"
+                         data-menu-id="${escapeAttr(menu.id)}"
+                         data-chapter-id="${c.id}"
+                         data-ep-index="${i}"
+                         onclick="openChapter('${menu.id}', ${c.id}, ${i})"
+                         title="${escapeAttr(epTitle)}">${epTitle}</div>`;
+          }).join('');
+          return `
+            <div class="tree-chapter" data-menu-id="${escapeAttr(menu.id)}" data-chapter-id="${c.id}">
+              <div class="tree-row-chapter"
+                   onclick="openChapter('${menu.id}', ${c.id}, 0)"
+                   title="${escapeAttr(c.title)}">${c.title}</div>
+              <div class="tree-children">${epsHtml}</div>
+            </div>`;
+        }).join('');
+        return `
+          <div class="tree-menu" data-menu-id="${escapeAttr(menu.id)}">
+            <div class="nav-item tree-row-menu"
+                 id="nav-${menu.id}"
+                 onclick="showSection('${menu.id}', this)">
+              ${LIST_SVG} ${menu.label}
+            </div>
+            <div class="tree-children">${chaptersHtml}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // 현재 활성 경로(메뉴 → 챕터 → 에피소드)에 따라 트리 펼침/활성 상태 갱신
+    function updateSidebarState() {
+      const activeSection = document.querySelector('.section.active');
+      let activeId = null;
+      let isViewer = false;
+      if (activeSection) {
+        const sid = activeSection.id;
+        if (sid.startsWith('sec-viewer-')) {
+          activeId = sid.replace('sec-viewer-', '');
+          isViewer = true;
+        } else if (sid.startsWith('sec-')) {
+          activeId = sid.slice(4);
+        }
+      }
+
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      document.querySelectorAll('.tree-menu').forEach(menuEl => {
+        const isPath = menuEl.dataset.menuId === activeId;
+        menuEl.classList.toggle('expanded', isPath);
+        if (isPath && !isViewer) {
+          menuEl.querySelector('.tree-row-menu').classList.add('active');
+        }
+      });
+
+      document.querySelectorAll('.tree-chapter').forEach(chapEl => {
+        const isPath = isViewer
+          && chapEl.dataset.menuId === activeId
+          && parseInt(chapEl.dataset.chapterId, 10) === viewerChapterId;
+        chapEl.classList.toggle('expanded', isPath);
+      });
+
+      document.querySelectorAll('.tree-row-episode').forEach(epEl => {
+        const isActive = isViewer
+          && epEl.dataset.menuId === activeId
+          && parseInt(epEl.dataset.chapterId, 10) === viewerChapterId
+          && parseInt(epEl.dataset.epIndex, 10) === viewerPage;
+        epEl.classList.toggle('active', isActive);
+      });
+
+      if (activeId === 'characters') {
+        document.getElementById('nav-characters').classList.add('active');
+      } else if (activeId === 'settings') {
+        document.getElementById('nav-settings').classList.add('active');
+      }
     }
 
     /* ────────────────────────────────────────
@@ -1467,12 +1624,11 @@
       if (viewerMenuId === menuId && viewerChapterId === chapterId && viewerPages.length > 0) {
         viewerPage = Math.max(0, Math.min(startEpisode, viewerPages.length - 1));
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(`sec-viewer-${menuId}`).classList.add('active');
-        document.getElementById(`nav-${menuId}`).classList.add('active');
         const sb0 = document.getElementById(`viewer-content-${menuId}`);
         if (sb0) sb0.scrollTop = 0;
         renderViewer();
+        updateSidebarState();
         pushRoute({ type: 'chapter', menuId, chapterId, episode: viewerPage });
         return;
       }
@@ -1482,15 +1638,16 @@
       if (!meta) return;
       viewerMenuId = menuId;
       viewerChapterId = chapterId;
+      // 사이드바 active 표시가 fetch 도중 이전 챕터 값으로 깜빡이지 않도록 미리 설정
+      viewerPage = Math.max(0, startEpisode || 0);
 
       document.getElementById(`viewer-title-${menuId}`).textContent = meta.title;
       document.getElementById(`viewer-content-${menuId}`).innerHTML =
         '<div class="no-result">불러오는 중...</div>';
 
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById(`sec-viewer-${menuId}`).classList.add('active');
-      document.getElementById(`nav-${menuId}`).classList.add('active');
+      updateSidebarState();
 
       try {
         const chapRes = await fetch(meta.file);
@@ -1515,6 +1672,7 @@
         const sb = document.getElementById(`viewer-content-${menuId}`);
         if (sb) sb.scrollTop = 0;
         renderViewer();
+        updateSidebarState();
         pushRoute({ type: 'chapter', menuId, chapterId, episode: viewerPage });
       } catch (err) {
         document.getElementById(`viewer-content-${menuId}`).innerHTML =
@@ -1571,6 +1729,7 @@
       const sb = document.getElementById(`viewer-content-${viewerMenuId}`);
       if (sb) sb.scrollTop = 0;
       renderViewer();
+      updateSidebarState();
       pushRoute({ type: 'chapter', menuId: viewerMenuId, chapterId: viewerChapterId, episode: viewerPage });
     }
 
@@ -1579,6 +1738,7 @@
       const sb = document.getElementById(`viewer-content-${viewerMenuId}`);
       if (sb) sb.scrollTop = 0;
       renderViewer();
+      updateSidebarState();
       pushRoute({ type: 'chapter', menuId: viewerMenuId, chapterId: viewerChapterId, episode: viewerPage });
     }
 
@@ -1624,8 +1784,9 @@
           } catch { menuData[menu.id] = []; }
         }));
 
-        // 전체 목록 렌더
+        // 전체 목록 렌더 + 사이드바 트리 구성
         menus.forEach(menu => renderMenuList(menu.id));
+        buildSidebarTree();
         renderChars();
 
         // 라우트 초기화 (해시가 있으면 해당 위치로 이동)
