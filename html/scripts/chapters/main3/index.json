@@ -1,18 +1,18 @@
 {
   "episodes": [
-    { "title": "3-1 추격 살인", "file": "scripts/chapters/main/3-1.json" },
-    { "title": "3-2 도로 포위망 뚫기 작전", "file": "scripts/chapters/main/3-2.json" },
-    { "title": "3-3 차단", "file": "scripts/chapters/main/3-3.json" },
-    { "title": "Mz-03 비경 · 사냥", "file": "scripts/chapters/main/Mz03.json" },
-    { "title": "Re3-3 심문", "file": "scripts/chapters/main/Re3-3.json" },
-    { "title": "3-4 빼앗긴 족쇄", "file": "scripts/chapters/main/3-4.json" },
-    { "title": "3-5 폭력의 향연", "file": "scripts/chapters/main/3-5.json" },
-    { "title": "3-6 변이 무기", "file": "scripts/chapters/main/3-6.json" },
-    { "title": "3-7 '제안'", "file": "scripts/chapters/main/3-7.json" },
-    { "title": "3-8 버려진 자의 몸부림", "file": "scripts/chapters/main/3-8.json" },
-    { "title": "3-9 약자의 각본", "file": "scripts/chapters/main/3-9.json" },
-    { "title": "3-10 반응", "file": "scripts/chapters/main/3-10.json" },
-    { "title": "3-11 결정", "file": "scripts/chapters/main/3-11.json" },
-    { "title": "3-12 Type-99", "file": "scripts/chapters/main/3-12.json" }
+    { "title": "3-1 추격 살인", "file": "scripts/chapters/main3/3-1.json" },
+    { "title": "3-2 도로 포위망 뚫기 작전", "file": "scripts/chapters/main3/3-2.json" },
+    { "title": "3-3 차단", "file": "scripts/chapters/main3/3-3.json" },
+    { "title": "Mz-03 비경 · 사냥", "file": "scripts/chapters/main3/Mz03.json" },
+    { "title": "Re3-3 심문", "file": "scripts/chapters/main3/Re3-3.json" },
+    { "title": "3-4 빼앗긴 족쇄", "file": "scripts/chapters/main3/3-4.json" },
+    { "title": "3-5 폭력의 향연", "file": "scripts/chapters/main3/3-5.json" },
+    { "title": "3-6 변이 무기", "file": "scripts/chapters/main3/3-6.json" },
+    { "title": "3-7 '제안'", "file": "scripts/chapters/main3/3-7.json" },
+    { "title": "3-8 버려진 자의 몸부림", "file": "scripts/chapters/main3/3-8.json" },
+    { "title": "3-9 약자의 각본", "file": "scripts/chapters/main3/3-9.json" },
+    { "title": "3-10 반응", "file": "scripts/chapters/main3/3-10.json" },
+    { "title": "3-11 결정", "file": "scripts/chapters/main3/3-11.json" },
+    { "title": "3-12 Type-99", "file": "scripts/chapters/main3/3-12.json" }
   ]
 }
