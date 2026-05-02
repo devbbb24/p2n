@@ -1,28 +1,28 @@
 [
   {
     "id": 1,
-    "title": "프롤로그",
+    "title": "0. 프롤로그",
     "file": "scripts/chapters/prologue/index.json",
     "tags": ["메인"],
     "banner": "images/00/01/04.png"
   },
   {
     "id": 2,
-    "title": "MBCC-CR-001 혼돈의 구원 병원 part A",
+    "title": "1. MBCC-CR-001 혼돈의 구원 병원 part A",
     "file": "scripts/chapters/main1/index.json",
     "tags": ["메인"],
     "banner": "images/01/06.png"
   },
   {
     "id": 3,
-    "title": "MBCC-CR-001 혼돈의 구원 병원 part B",
+    "title": "2. MBCC-CR-001 혼돈의 구원 병원 part B",
     "file": "scripts/chapters/main2/index.json",
     "tags": ["메인"],
     "banner": "images/02/62.png"
   },
   {
     "id": 4,
-    "title": "MBCC-CR-002 주인 없는 땅굴 part A",
+    "title": "3. MBCC-CR-002 주인 없는 땅굴 part A",
     "file": "scripts/chapters/main3/index.json",
     "tags": ["메인"],
     "banner": "images/01/33.png"
